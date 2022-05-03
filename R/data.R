@@ -25,3 +25,32 @@
 #'     \item{colony}{colony ID}
 #'   }
 "ant_removal"
+
+#' Slopes obtained as a result of the permutation of the time series data
+"permutated_slopes"
+
+
+#' A data frame presenting results of the ant collection event. Ants were
+#' collected from the arena - they were active outside the nest.
+#' @format Columns description:
+#'  \describe{
+#'    \item{Date}{Collection date}
+#'    \item{Colony}{Colony ID}
+#'    \item{Unmarked}{Cumulative number of collected ants which have not
+#'    been marked}
+#'    \item{Red}{Cumulative number of the ants marked with red paint}
+#'    \item{Yellow}{Cumulative number of the ants marked with yellow paint}
+#'    \item{Dead_unm}{Cumulative number of the dead unmarked ants}
+#'    \item{Dead_red}{Cumulative number of the dead ants marked with red color}
+#'    \item{Dead_yellow}{Cumulative number of the dead ants marked with yellow
+#'     color}
+#'    \item{Upper_part}{Cumulative number of the marked ants from the upper
+#'    part of the nest}
+#'    \item{Lower_part}{Cumulative number of the marked ants from the lower
+#'    part of the nest}
+#'    \item{Upper_part_dead}{Cumulative number of the marked dead ants from the
+#'    upper part of the nest}
+#'    \item{Lower_part_dead}{Cumulative number of the marked dead ants from the
+#'    lower part of the nest}
+#'  }
+"experiment_course"

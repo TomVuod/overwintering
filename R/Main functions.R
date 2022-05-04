@@ -22,9 +22,9 @@ hgeom_numbers<-function(alpha=0.05, Unmarked, removed_1,
                         N1, N2, ...) {
   # iterate over all possible number of ants coming from either lower or upper
   # part of the nest
-  probabs <- c(0)
+  probabs <- numeric(0)
   # find all possible numbers of removed ants from upper part of the nest (marked or not)
-  ant_seq <- max(removed_total - marked_2 ,removed_1):min(removed_total - removed_2, marked_1)
+  ant_seq <- max(removed_total - N2, removed_1):min(removed_total - removed_2, N1)
   for (i in ant_seq){
     removed_upper_all<-i
     removed_lower_all<-removed_total-i
@@ -36,7 +36,7 @@ hgeom_numbers<-function(alpha=0.05, Unmarked, removed_1,
   # normalize sum fo the probabilities to 1
   probabs <- probabs/sum(probabs)
   CI_bounds <- calculate_CI(probabs, alpha = alpha)
-  return(c(lower = ant_seq[CI_bounds['l']], ml= ant_seq[which.max(probabs)],
+  return(c(lower = ant_seq[CI_bounds['l']], ml = ant_seq[which.max(probabs)],
            upper = ant_seq[CI_bounds['r']]))
 }
 
@@ -91,7 +91,6 @@ null_distribution_CI <- function(alpha = 0.05, removed_total, N1, N2, ...){
     probabs[length(probabs)+1] <- dhyper(i, N1, N2, removed_total)
   }
   CI_limits<-calculate_CI(probabs, alpha=alpha)
-  print(c(lower = CI_limits['l'], ml = upper_part_numbers[which.max(probabs)], upper = CI_limits['r']))
   return(c(lower = upper_part_numbers[CI_limits['l']],
            ml = upper_part_numbers[which.max(probabs)],
            upper = upper_part_numbers[CI_limits['r']]))
@@ -105,12 +104,12 @@ track_CI_change<-function(data = experiment_course, summary_data = ant_removal){
                           N2 = N2 - round(Dead_unm*(N2/(N1+N2)))- Lower_part_dead,
                           N1 = N1b) %>%
     mutate(marked_1 = marked_1 - Upper_part_dead, marked_2 = marked_2 - Lower_part_dead)
-  CI_limits <- pmap_dfr(data, hgeom_numbers)  %>% cbind(data[,c("N1", "N2", "colony", "Date")]) %>%
-    mutate(lower_limit = lower/(N1+N2), upper_limit = upper/(N1+N2), max_likelihood_val = ml/(N1+N2)) %>%
-    select(colony, Date, lower_limit, upper_limit, max_likelihood_val)
+  CI_limits <- pmap_dfr(data, hgeom_numbers)  %>% cbind(data[,c("N1", "N2", "colony", "Date", "removed_total")]) %>%
+    mutate(lower_limit = lower/(removed_total), upper_limit = upper/(removed_total), max_likelihood_val = ml/(removed_total)) %>%
+    select(colony, Date, lower_limit, upper_limit, max_likelihood_val) %>% mutate(CI = "empirical")
   CI_limits_null <- pmap_dfr(data, null_distribution_CI) %>%
-    cbind(data[,c("N1", "N2", "colony", "Date")]) %>%
-    mutate(lower_limit_null = lower/(N1+N2), upper_limit_null = upper/(N1+N2), max_likelihood_val_null = ml/(N1+N2)) %>%
-    select(lower_limit_null, upper_limit_null, max_likelihood_val_null)
-  return(cbind(CI_limits, CI_limits_null))
+    cbind(data[,c("N1", "N2", "colony", "Date", "removed_total")]) %>%
+    mutate(lower_limit = lower/(removed_total), upper_limit = upper/(removed_total), max_likelihood_val = ml/(removed_total)) %>%
+    select(colony, Date, lower_limit, upper_limit, max_likelihood_val) %>% mutate(CI = "null")
+  return(rbind(CI_limits, CI_limits_null))
 }

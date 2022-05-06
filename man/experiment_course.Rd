@@ -18,9 +18,9 @@ been marked}
 \item{Dead_red}{Cumulative number of the dead ants marked with red color}
 \item{Dead_yellow}{Cumulative number of the dead ants marked with yellow
 color}
-\item{Upper_part}{Cumulative number of the marked ants from the upper
+\item{Removed_1}{Cumulative number of the removed marked ants from the upper
 part of the nest}
-\item{Lower_part}{Cumulative number of the marked ants from the lower
+\item{Removed_2}{Cumulative number of the removed marked ants from the lower
 part of the nest}
 \item{Upper_part_dead}{Cumulative number of the marked dead ants from the
 upper part of the nest}

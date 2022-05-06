@@ -1,3 +1,5 @@
+#' Hypergeometric distribution confidence interval
+#'
 #' Caclulate confidence interval for the number  of ants from the upper part of the nest
 #' taking into consideration all possible assignemnts of unmarked ants to either
 #' upper or lower part group
@@ -40,8 +42,26 @@ hgeom_numbers<-function(alpha=0.05, Unmarked, removed_1,
            upper = ant_seq[CI_bounds['r']]))
 }
 
+#' Vactor indices for the confidence interval
+#'
+#' Calculate confidence interval for a vector of probabilities deriving from
+#' the probability mass function
+#'
+#' @param data Vector of numbers representing probabilities; should sum up to 1
+#' @param alpha Numeric value setting the mamximal value for the type 1 error
+#' @return Indices of the passed vector correspoding to the confidence interval
+#' limits
+#' @examples
+#' x <- runif(20)
+#' x <- sum(x)
+#' caclulate_CI(x, 0.05)
 calculate_CI<-function(data, alpha){
   if (any(is.na(data))) stop("NA probability values")
+  if (!is.numeric(data)) stop("Data shoud be a numeric vector")
+  if (round(sum(data), 5) != 1) stop("Data vector should sum to 1")
+  if (!is.numeric(alpha)) stop("Alpha should be numeric")
+  if (length(alpha) != 1) stop("Alpha shlould be of length one")
+  if (alpha > 1) stop("Alpha should not be greater than one")
   max_prob_index<-which.max(data)
   r<-max_prob_index
   l<-max_prob_index
@@ -52,15 +72,15 @@ calculate_CI<-function(data, alpha){
   cumprob=data[max_prob_index]
   counter=1
   while (counter<=length(data)){
-    if (sum(cumprob) >= (1 - alpha)) break
+    if (round(sum(cumprob), 4) >= (1 - alpha)) break
     if (r==length(data)) right_edge<-TRUE
     if (l==1) left_edge<-TRUE
     comparison<-numeric()
-    if (left_edge!=TRUE) {
+    if (left_edge == FALSE) {
       l2<-l-1
       comparison<-c(comparison, l2)
     }
-    if (right_edge!=TRUE) {
+    if (right_edge == FALSE) {
       r2<-r+1
       comparison<-c(comparison, r2)
     }
@@ -77,11 +97,10 @@ calculate_CI<-function(data, alpha){
   c(r = r, l = l)
 }
 
-# caluculate confidence interval for the proportion of ants of both groups among  all caught ants
-# given that an ant from any group has equal probability to be represented in a sample
-
 
 null_distribution_CI <- function(alpha = 0.05, removed_total, N1, N2, ...){
+# caluculate confidence interval for the proportion of ants of both groups among  all caught ants
+# given that an ant from any group has equal probability to be represented in a sample
 # corrected version (after publication; hypergeometric distribution insted of binomial)
   probabs <- c()
   upper_part_numbers <- 0:removed_total

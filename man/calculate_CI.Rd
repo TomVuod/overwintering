@@ -2,8 +2,7 @@
 % Please edit documentation in R/Main functions.R
 \name{calculate_CI}
 \alias{calculate_CI}
-\title{Calculate confidence interval for a vector of probabilities deriving from
-the probability mass function}
+\title{Vector of indices for the confidence interval}
 \usage{
 calculate_CI(data, alpha)
 }
@@ -12,7 +11,16 @@ calculate_CI(data, alpha)
 
 \item{alpha}{Numeric value setting the mamximal value for the type 1 error}
 }
+\value{
+Indices of the passed vector correspoding to the confidence interval
+limits
+}
 \description{
 Calculate confidence interval for a vector of probabilities deriving from
 the probability mass function
+}
+\examples{
+x <- runif(20)
+x <- sum(x)
+caclulate_CI(x, 0.05)
 }

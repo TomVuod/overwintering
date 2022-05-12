@@ -1,3 +1,4 @@
+#' @export
 #' Hypergeometric distribution confidence interval
 #'
 #' Caclulate confidence interval for the number  of ants from the upper part of the nest
@@ -6,12 +7,11 @@
 #'
 #' @param alpha A number between 0 and 1 corresponding to the type 1 error
 #' @param removal_total The total number of ants removed from the arena
-#' @param removed_1 The number of ants removed which come from the upper part of the nest
+#' @param removed_1 The number of marked and removed ants
+#' which come from the upper part of the nest
 #' @param removed_2 The number of ants removed which come from the lower part of the nest
-#' @param marked_1 The number of ants marked and removed ants
-#'  which come from the upper part of the nest
-#' @param marked_2 The number of ants marked and removed ants
-#'  which come from the lower part of the nest
+#' @param marked_1 The number of marked ants from the upper part of the nest
+#' @param marked_2 The number of marked ants from the lower part of the nest
 #' @param N1 The total number of ants from the upper part of the nest
 #' @param N2 The total number of ants from the lower part of the nest
 #' @return Vector of the length three accouting for the lower limit, maimum likelihood, and
@@ -30,7 +30,7 @@ hgeom_numbers<-function(alpha=0.05, Unmarked, removed_1,
   for (i in ant_seq){
     removed_upper_all<-i
     removed_lower_all<-removed_total-i
-    # from the Bayes rule we know that P(N1|r1,r2)=(P(r1|N1)*P(r2|N1)*P(N1))/(P(r1)*P(r2))
+    # calculate posterior distribution using the Bayes rule
     probab<-dhyper(removed_1, marked_1, N1-marked_1, removed_upper_all)*
       dhyper(removed_2, marked_2, N2-marked_2, removed_lower_all)
     probabs[length(probabs)+1] <- probab
@@ -42,7 +42,7 @@ hgeom_numbers<-function(alpha=0.05, Unmarked, removed_1,
            upper = ant_seq[CI_bounds['r']]))
 }
 
-#' Vactor indices for the confidence interval
+#' Vector of indices for the confidence interval
 #'
 #' Calculate confidence interval for a vector of probabilities deriving from
 #' the probability mass function
@@ -99,7 +99,7 @@ calculate_CI<-function(data, alpha){
 
 
 null_distribution_CI <- function(alpha = 0.05, removed_total, N1, N2, ...){
-# caluculate confidence interval for the proportion of ants of both groups among  all caught ants
+# caluculate confidence interval for the proportion of ants of both groups among all caught ants
 # given that an ant from any group has equal probability to be represented in a sample
 # corrected version (after publication; hypergeometric distribution insted of binomial)
   probabs <- c()
@@ -115,20 +115,20 @@ null_distribution_CI <- function(alpha = 0.05, removed_total, N1, N2, ...){
            upper = upper_part_numbers[CI_limits['r']]))
 }
 
+#' @importFrom dplyr %>%
+
 track_CI_change<-function(data = experiment_course, summary_data = ant_removal){
-  library(purrr)
-  library(dplyr)
-  data <- data %>% left_join(select(summary_data, N1, N2, marked_1, marked_2, colony))
-  data <- data %>% mutate(N1b = N1 - round(Dead_unm*(N1/(N1+N2))) - Upper_part_dead,
+  data <- data %>% dplyr::left_join(select(summary_data, N1, N2, marked_1, marked_2, colony))
+  data <- data %>% dplyr::mutate(N1b = N1 - round(Dead_unm*(N1/(N1+N2))) - Upper_part_dead,
                           N2 = N2 - round(Dead_unm*(N2/(N1+N2)))- Lower_part_dead,
                           N1 = N1b) %>%
-    mutate(marked_1 = marked_1 - Upper_part_dead, marked_2 = marked_2 - Lower_part_dead)
+    dplyr::mutate(marked_1 = marked_1 - Upper_part_dead, marked_2 = marked_2 - Lower_part_dead)
   CI_limits <- pmap_dfr(data, hgeom_numbers)  %>% cbind(data[,c("N1", "N2", "colony", "Date", "removed_total")]) %>%
     mutate(lower_limit = lower/(removed_total), upper_limit = upper/(removed_total), max_likelihood_val = ml/(removed_total)) %>%
-    select(colony, Date, lower_limit, upper_limit, max_likelihood_val) %>% mutate(CI = "empirical")
+    select(colony, Date, lower_limit, upper_limit, max_likelihood_val) %>% dplyr::mutate(CI = "empirical")
   CI_limits_null <- pmap_dfr(data, null_distribution_CI) %>%
     cbind(data[,c("N1", "N2", "colony", "Date", "removed_total")]) %>%
     mutate(lower_limit = lower/(removed_total), upper_limit = upper/(removed_total), max_likelihood_val = ml/(removed_total)) %>%
-    select(colony, Date, lower_limit, upper_limit, max_likelihood_val) %>% mutate(CI = "null")
+    select(colony, Date, lower_limit, upper_limit, max_likelihood_val) %>% dplyr::mutate(CI = "null")
   return(rbind(CI_limits, CI_limits_null))
 }

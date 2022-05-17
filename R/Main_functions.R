@@ -1,4 +1,3 @@
-#' @export
 #' Hypergeometric distribution confidence interval
 #'
 #' Caclulate confidence interval for the number  of ants from the upper part of the nest
@@ -19,6 +18,8 @@
 #' @examples
 #' data(ant_removal)
 #' do.call(hgeom_numbers, as.list(unlist(ant_removal[1,]))))
+#' @importFrom stats dhyper
+#' @export
 hgeom_numbers<-function(alpha=0.05, Unmarked, removed_1,
                                       removed_2, marked_1, marked_2, removed_total,
                         N1, N2, ...) {
@@ -51,10 +52,6 @@ hgeom_numbers<-function(alpha=0.05, Unmarked, removed_1,
 #' @param alpha Numeric value setting the mamximal value for the type 1 error
 #' @return Indices of the passed vector correspoding to the confidence interval
 #' limits
-#' @examples
-#' x <- runif(20)
-#' x <- sum(x)
-#' caclulate_CI(x, 0.05)
 calculate_CI<-function(data, alpha){
   if (any(is.na(data))) stop("NA probability values")
   if (!is.numeric(data)) stop("Data shoud be a numeric vector")
@@ -115,8 +112,21 @@ null_distribution_CI <- function(alpha = 0.05, removed_total, N1, N2, ...){
            upper = upper_part_numbers[CI_limits['r']]))
 }
 
-#' @importFrom dplyr %>%
 
+#' Calculate credible interval over the course of experiment
+#'
+#'  Calculate credible interval over the course of experiment
+#'
+#'  This function uses \code{experiment_course} and \code{ant_removal} datasets to
+#'  calculate how condifence interval for the null hypothesis and credible interval for
+#'  actual data changes over the course of experiment; this issue was examined following
+#'  the suggestion of the reviewer
+#'  @return an updated version of of \code(experiment_course) data frame with CI values
+#'  added (long format)
+#'  @examples
+#'  track_CI_change()
+#'  @importFrom dplyr %>%
+#'  @export
 track_CI_change<-function(data = experiment_course, summary_data = ant_removal){
   data <- data %>% dplyr::left_join(select(summary_data, N1, N2, marked_1, marked_2, colony))
   data <- data %>% dplyr::mutate(N1b = N1 - round(Dead_unm*(N1/(N1+N2))) - Upper_part_dead,

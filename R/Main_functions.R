@@ -1,7 +1,7 @@
 #' Hypergeometric distribution confidence interval
 #'
-#' Caclulate confidence interval for the number  of ants from the upper part of the nest
-#' taking into consideration all possible assignemnts of unmarked ants to either
+#' Calculate confidence interval for the number  of ants from the upper part of the nest
+#' taking into consideration all possible assignments of unmarked ants to either
 #' upper or lower part group
 #'
 #' @param alpha A number between 0 and 1 corresponding to the type 1 error
@@ -13,7 +13,7 @@
 #' @param marked_2 The number of marked ants from the lower part of the nest
 #' @param N1 The total number of ants from the upper part of the nest
 #' @param N2 The total number of ants from the lower part of the nest
-#' @return Vector of the length three accouting for the lower limit, maimum likelihood, and
+#' @return Vector of the length three accounting for the lower limit, minimum likelihood, and
 #' the upper limit for the number of ants coming from the upper part of the nest
 #' @examples
 #' data(ant_removal)

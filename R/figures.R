@@ -3,7 +3,7 @@ figure_5 <- function(){
   library(ggplot2)
   library(dplyr)
   track_CI_change() %>%
-    ggplot(aes(x = Date)) +
+    ggplot(aes(x = duration)) +
     geom_ribbon(aes(ymin = lower_limit, ymax = upper_limit, fill = CI), alpha = 0.5) +
     scale_fill_manual("Confidence interval", labels = c("Eprical data", "Null model"), values = c('#8d7500','#341202')) +
     geom_line(aes(y = maximum_likelihood, color = CI), lwd=1) +

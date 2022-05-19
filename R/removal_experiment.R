@@ -25,7 +25,7 @@
 #' do.call(get_prob_mass, as.list(unlist(dataset[2,])))
 #' @importFrom stats dhyper
 #' @export
-get_prob_mass<-function(removed_1, removed_2, unmarked, marked_1, marked_2,
+get_prob_mass <- function(removed_1, removed_2, unmarked, marked_1, marked_2,
                         N1, N2, ..., null_model = FALSE) {
   removed_total <- removed_1 + removed_2 + unmarked
   probabs <- numeric(0)
@@ -37,7 +37,7 @@ get_prob_mass<-function(removed_1, removed_2, unmarked, marked_1, marked_2,
   for (removed_upper_all in ant_seq){
     if(null_model)
       # calculate the probabilities of obtaining all possible numbers of marked
-      # and from one of the groups given the sample size and given that
+      # ants from one of the groups given the sample size and given that
       # the probability is equal to group 1 size/colony size
       probab <- dhyper(removed_upper_all, N1, N2, removed_total)
     else
@@ -60,7 +60,7 @@ get_prob_mass<-function(removed_1, removed_2, unmarked, marked_1, marked_2,
 #' @param alpha Numeric value setting the maximal value for the type 1 error
 #' @return Indices of the passed vector corresponding to the confidence interval
 #' limits
-calculate_CI<-function(data, alpha){
+calculate_CI <- function(data, alpha){
   if (!is.data.frame(data)) stop(paste0(sQuote("Data"), " shoud be a data frame"))
   if (any(is.na(data$prob))) stop("NA probability values")
   if (round(sum(data$prob), 5) != 1) stop("Probability distribution should sum up to 1")
@@ -97,7 +97,7 @@ calculate_CI<-function(data, alpha){
 #'  @importFrom dplyr %>%
 #'  @importFrom purrr pmap
 #'  @export
-track_CI_change<-function(data = experiment_course, summary_data = ant_removal){
+track_CI_change <- function(data = experiment_course, summary_data = ant_removal){
   data <- data %>% dplyr::left_join(select(summary_data, N1, N2, marked_1, marked_2, colony))
   data <- data %>% dplyr::mutate(N1b = N1 - round(Dead_unm*(N1/(N1+N2))) - Upper_part_dead,
                           N2 = N2 - round(Dead_unm*(N2/(N1+N2)))- Lower_part_dead,
@@ -114,4 +114,36 @@ track_CI_change<-function(data = experiment_course, summary_data = ant_removal){
     cbind(data[,c("colony", "Date")]) %>%
     dplyr::mutate(CI = "null")
   return(rbind(CI_limits, CI_limits_null))
+}
+
+#' Sample probability distribution
+#'
+#' Take sample from the probability distribution
+#'
+#' @param data data.frame returned by the \code{caclulate_CI}
+#' @param sample_size int defines the number of draw from the probability
+#' distribution
+#' @return the values of the random variable whose distribution was sampled; in
+#' this case these are the proportions of ants from the upper nest segment
+#' @export
+sample_distribution <- function(data, sample_size){
+  stopifnot(is.data.frame(data),
+            all((c("prob", "upper_part_proportion") %in% colnames(data))))
+  draw_res <- rmultinom(1, sample_size, data$prob)
+  apply(draw_res, 2, function(x) data$upper[x])
+}
+
+
+# random sample of regression slopes based on the results
+# of the samples from the probability distribution
+calculate_regr_coeffs <- function(data = experiment_course) {
+  exp_data <- split(data, data$colony)
+  coeffs <- list()
+  for (i in 1:length(exp_data)){
+    timing <- exp_data[[i]]$duration
+    coeffs[[i]] <- pmap(exp_data, get_prob_mass) %>%
+      pmap_dfc(sample_distribution) %>% pmap_dbl(~lm(c(...)~timing)$coeff[2])
+    names(coeffs)[i] <- exp_data[[i]]$colony[1]
+  }
+  coeffs
 }

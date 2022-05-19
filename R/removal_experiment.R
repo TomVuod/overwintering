@@ -115,28 +115,3 @@ track_CI_change<-function(data = experiment_course, summary_data = ant_removal){
     dplyr::mutate(CI = "null")
   return(rbind(CI_limits, CI_limits_null))
 }
-
-sample_posterior_distr<-function(distr, n_samples=100){
-  #generates proportions based on their probability distribution obtained for each
-  #time step using hypergeomtric_distribution function
-  #data - data frame for a given colony
-  sampled_proportions<-matrix(nrow=replications,ncol=nrow(data))
-  for (j in 1:nrow(data)){
-    expected_dead=data[j,]$Expected_dead+round(data[j,]$Dead_unm*(data[j,]$Group1/(data[j,]$Group1+data[j,]$Group1)))
-    m1=data[j,]$m1-expected_dead
-    unexpected_dead=data[j,]$Unexpected_dead+data[j,]$Dead_unm-expected_dead+data[j,]$Expected_dead
-    m2=data[j,]$m2-unexpected_dead
-    n=data[j,]$Expected+data[j,]$Unexpected+data[j,]$unmarked
-    parameters=list(m1=m1,m2=m2,r1=data[j,]$Expected,r2=data[j,]$Unexpected,n=n,group1=data[j,]$Group1,group2=data[j,]$Group2)
-    distribution<-hypergeometric_distribution(parameters,wykres=FALSE)$'wykres_dane'
-    distribution$proportion<-distribution$N_1/n
-    #create filer matrix to select proportions according to their probabilities
-    #result of a single draw in a single column (only one TRUE value per column)
-    distribution_sample<-as.logical(rmultinom(replications,1,distribution$probability))
-    #proportions matrix to be selected from
-    proportions_matrix<-matrix(rep(distribution$proportion,replications),ncol=replications,byrow=FALSE)
-    sampled_proportions[,j]<-proportions_matrix[distribution_sample]
-  }
-  sampled_proportions
-}
-

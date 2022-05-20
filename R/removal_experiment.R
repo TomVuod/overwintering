@@ -90,7 +90,7 @@ calculate_CI <- function(data, alpha){
 #'  calculate how condifence interval for the null hypothesis and credible interval for
 #'  actual data changes over the course of experiment; this issue was examined following
 #'  the suggestion of the reviewer
-#'  @return an updated version of of \code(experiment_course) data frame with CI values
+#'  @return an updated version of of \code{experiment_course} data frame with CI values
 #'  added (long format)
 #'  @examples
 #'  track_CI_change()
@@ -125,29 +125,36 @@ track_CI_change <- function(data = experiment_course, summary_data = ant_removal
 #' @return the values of the random variable whose distribution was sampled; in
 #' this case these are the proportions of ants from the upper nest segment
 #' @export
-sample_distribution <- function(data, sample_size = 100){
+sample_distribution <- function(data, sample_size = 1e4){
   stopifnot(is.data.frame(data),
             all((c("prob", "upper_part_proportion") %in% colnames(data))))
   draw_res <- apply(rmultinom(sample_size, 1, data$prob),2,as.logical)
   apply(draw_res, 2, function(x) data$upper[x])
 }
 
+cond_sample <-function(x, permutation = TRUE){
+  if (!permutation) return(x)
+  sample(x)
+}
+
 # random sample of regression slopes based on the results
 # of the samples from the probability distribution
 #' @importFrom purrr pmap_dbl pmap
 calculate_regr_coeffs <- function(data = experiment_course,
-                                  colony_data = ant_removal) {
+                                  colony_data = ant_removal,
+                                  randomize = FALSE,
+                                  sample_size = 1e4) {
   data <- dplyr::left_join(data, dplyr::select(ant_removal, "N1", "N2", "marked_1", "marked_2", "colony"))
   exp_data <- split(data, data$colony)
   coeffs <- list()
   for (i in 1:length(exp_data)){
     timing <- exp_data[[i]]$duration
     coeffs[[i]] <- pmap(exp_data[[i]], get_prob_mass) %>%
-      lapply(sample_distribution) %>%
+      lapply(sample_distribution, sample_size = sample_size) %>%
       do.call(cbind, .) %>%
       as.data.frame() %>%
-      pmap_dbl(~lm(c(...)~timing)$coeff[2])
-    names(coeffs)[i] <- exp_data[[i]]$colony[1]
+      pmap_dbl(~lm(cond_sample(c(...), permutation = randomize)~timing)$coeff[2])
+    names(coeffs)[i] <- as.character(exp_data[[i]]$colony[1])
   }
   coeffs
 }

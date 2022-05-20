@@ -12,7 +12,12 @@ Language: pl
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Depends: 
+    ggplot2,
     R (>= 2.10)
 LazyData: true
 Imports: 
-    dplyr
+    dplyr,
+    HDInterval,
+    purrr,
+    stringi,
+    tidyselect

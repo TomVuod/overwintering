@@ -95,7 +95,6 @@ calculate_CI <- function(data, alpha){
 #'  @examples
 #'  track_CI_change()
 #'  @importFrom dplyr %>%
-#'  @importFrom purrr pmap
 #'  @export
 track_CI_change <- function(data = experiment_course, summary_data = ant_removal){
   data <- data %>% dplyr::left_join(select(summary_data, N1, N2, marked_1, marked_2, colony))
@@ -126,23 +125,28 @@ track_CI_change <- function(data = experiment_course, summary_data = ant_removal
 #' @return the values of the random variable whose distribution was sampled; in
 #' this case these are the proportions of ants from the upper nest segment
 #' @export
-sample_distribution <- function(data, sample_size){
+sample_distribution <- function(data, sample_size = 100){
   stopifnot(is.data.frame(data),
             all((c("prob", "upper_part_proportion") %in% colnames(data))))
-  draw_res <- rmultinom(1, sample_size, data$prob)
+  draw_res <- apply(rmultinom(sample_size, 1, data$prob),2,as.logical)
   apply(draw_res, 2, function(x) data$upper[x])
 }
 
-
 # random sample of regression slopes based on the results
 # of the samples from the probability distribution
-calculate_regr_coeffs <- function(data = experiment_course) {
+#' @importFrom purrr pmap_dbl pmap
+calculate_regr_coeffs <- function(data = experiment_course,
+                                  colony_data = ant_removal) {
+  data <- dplyr::left_join(data, dplyr::select(ant_removal, "N1", "N2", "marked_1", "marked_2", "colony"))
   exp_data <- split(data, data$colony)
   coeffs <- list()
   for (i in 1:length(exp_data)){
     timing <- exp_data[[i]]$duration
-    coeffs[[i]] <- pmap(exp_data, get_prob_mass) %>%
-      pmap_dfc(sample_distribution) %>% pmap_dbl(~lm(c(...)~timing)$coeff[2])
+    coeffs[[i]] <- pmap(exp_data[[i]], get_prob_mass) %>%
+      lapply(sample_distribution) %>%
+      do.call(cbind, .) %>%
+      as.data.frame() %>%
+      pmap_dbl(~lm(c(...)~timing)$coeff[2])
     names(coeffs)[i] <- exp_data[[i]]$colony[1]
   }
   coeffs

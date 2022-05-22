@@ -2,7 +2,8 @@
 
 export(get_prob_mass)
 export(sample_distribution)
+importFrom(purrr,map_chr)
 importFrom(purrr,pmap)
 importFrom(purrr,pmap_dbl)
-importFrom(purrr,pmap_dfc)
 importFrom(stats,dhyper)
+importFrom(stringi,stri_extract)

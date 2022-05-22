@@ -4,7 +4,7 @@
 \alias{sample_distribution}
 \title{Sample probability distribution}
 \usage{
-sample_distribution(data, sample_size)
+sample_distribution(data, sample_size = 10000)
 }
 \arguments{
 \item{data}{data.frame returned by the \code{caclulate_CI}}

@@ -6,6 +6,8 @@ expand_vert_distr <- function(rowline){
   data.frame(depth = depths, worker_number = work_numb, colony = rowline$colony[1])
 }
 
+data(underground_distribution)
+#' @importFrom dplyr %>%
 # aggregate worker number data according to vertical stratification (resolution: 1 cm)
 aggr_vertical <- function(data = underground_distribution){
   results <- data.frame()

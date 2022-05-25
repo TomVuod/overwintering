@@ -12,7 +12,6 @@ figure_5 <- function(){
     ylab("Proportion of ants from the\nupper nest segment")
 }
 
-
 # Figure 6 in the publication
 # note that the results of the Fig. 6 are subject to some small random variation
 # to avoid this effect you can set the initial value of the generator seed

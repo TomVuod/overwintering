@@ -2,6 +2,7 @@
 
 export(get_prob_mass)
 export(sample_distribution)
+importFrom(dplyr,"%>%")
 importFrom(purrr,keep)
 importFrom(purrr,map)
 importFrom(purrr,map_chr)

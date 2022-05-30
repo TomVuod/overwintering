@@ -54,3 +54,22 @@
 #'    lower part of the nest}
 #'  }
 "experiment_course"
+#' Colony metadata
+#'
+#' A list of additional data on the colonies
+#'
+#' @format Each list item contains the data on a sigle colony. This is a list made up
+#' of the following components:
+#' \describe{
+#'  \item{colony_ID}{The unique colony label}
+#'  \item{colony_size}{The number of workers in the colony}
+#'  \item{head_width}{A numeric vectors representing head widths of the sampled workers
+#'  in micrometers}
+#'  \item{measurement_source}{Indicates from which source ants devoted to be measured
+#'  were samples. 'Colony' means that ants were samples from directly from the living
+#'  population of the colony whereas 'corpses' means ants samples from dead individuals
+#'  collected after tranfering colonies to the laboratory}
+#'  \item{queens_depth}{A numeric vector indicating the depths at which queens have been found.
+#'  The vector length is equivalent to the number of queens.}
+#' }
+"colony_metadata"

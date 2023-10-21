@@ -4,20 +4,18 @@
 \alias{track_CI_change}
 \title{Calculate credible interval}
 \usage{
-track_CI_change(data = experiment_course, summary_data = ant_removal)
+track_CI_change(data = time_series_results, summary_data = colony_stats)
+}
+\value{
+an updated version of of \code{time_series_results} data frame with CI values
+added (long format)
 }
 \description{
 Calculate credible interval for data obtained over the course of experiment
 }
 \details{
-This function uses \code{experiment_course} and \code{ant_removal} datasets to
-calculate how condifence interval for the null hypothesis and credible interval for
+This function uses \code{time_series_results} and \code{colony_stats} datasets to
+calculate how confidence interval for the null hypothesis and credible interval for
 actual data changes over the course of experiment; this issue was examined following
 the suggestion of the reviewer
-@return an updated version of of \code{experiment_course} data frame with CI values
-added (long format)
-@examples
-track_CI_change()
-@importFrom dplyr \%>\%
-@export
 }

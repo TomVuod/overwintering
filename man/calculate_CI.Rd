@@ -2,18 +2,19 @@
 % Please edit documentation in R/removal_experiment.R
 \name{calculate_CI}
 \alias{calculate_CI}
-\title{Vector of indices for the confidence interval}
+\title{Interval for the proportion of ants}
 \usage{
 calculate_CI(data, alpha)
 }
 \arguments{
 \item{data}{Data frame returned by \code{get_prob_mass}}
 
-\item{alpha}{Numeric value setting the maximal value for the type 1 error}
+\item{alpha}{Numeric value setting the maximum value for the type 1 error}
 }
 \value{
-Indices of the passed vector corresponding to the confidence interval
-limits
+A numeric vector with elements corresponding to lower limit, maximum
+likelihood, and the upper limit for the proportion of ants coming from the
+upper part of the nest.
 }
 \description{
 Calculate confidence/credible interval for a vector of probabilities deriving

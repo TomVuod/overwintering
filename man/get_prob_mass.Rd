@@ -17,16 +17,17 @@ get_prob_mass(
 )
 }
 \arguments{
-\item{removed_1}{The number of marked and removed ants
-which come from the upper part of the nest}
+\item{removed_1}{The number of marked ants from the upper part of the nest which
+were removed}
 
-\item{removed_2}{The number of ants removed which come from the lower part of the nest}
+\item{removed_2}{The number of the marked ants from the lower part of the nest which
+were removed}
 
-\item{unmarked}{The number of removed ants which had not been marked}
+\item{unmarked}{The number of the removed ants which had not been marked}
 
-\item{marked_1}{The number from the upper part of the nest which had been marked}
+\item{marked_1}{The total number of the marked ants from the upper part of the nest}
 
-\item{marked_2}{The number from the lower part of the nest which had been marked}
+\item{marked_2}{The total number of the marked ants from the lower part of the nest}
 
 \item{N1}{The total number of ants from the upper part of the nest}
 
@@ -36,20 +37,23 @@ which come from the upper part of the nest}
 
 \item{null_model}{logical; if set to TRUE the probability mass distribution
 for the null model is calculated; the null model assumes an equal probability of
-being removed for an ant from the upper and lower part of the nest}
+being removed for an ant from the upper and lower part of the nest; if set to FALSE
+the probability takes into account the numbers of marked ans which have been removed
+from the outside of nest and the model assumes that a marked ant has the same
+probability of being removed as an unmarked one.}
 }
 \value{
-Vector of the length three accounting for the lower limit, minimum likelihood, and
-the upper limit for the proportion of ants coming from the upper part of the nest
+A data frame with the all possible proportions of ants from the upper part
+of the nest among all ants active outside the nest and the corresponding probabilities.
 }
 \description{
-Calculate probability mass distribution for the number of individuals from
-the one of two groups based on the hypergeometric distribution
+Calculate probability mass distribution for the proportion of ants from
+the upper part of the nest among ants removed from outside the nest
 }
 \examples{
-data(experiment_course)
-data(ant_removal)
-dataset <- dplyr::left_join(experiment_course,
-select(ant_removal, colony, N1, N2, marked_1, marked_2))
+data(time_series_results)
+data(colony_stats)
+dataset <- dplyr::left_join(time_series_results,
+dplyr::select(colony_stats, colony, N1, N2, marked_1, marked_2))
 do.call(get_prob_mass, as.list(unlist(dataset[2,])))
 }

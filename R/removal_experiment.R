@@ -25,7 +25,7 @@
 #' data(time_series_results)
 #' data(colony_stats)
 #' dataset <- dplyr::left_join(time_series_results,
-#' select(colony_stats, colony, N1, N2, marked_1, marked_2))
+#' dplyr::select(colony_stats, colony, N1, N2, marked_1, marked_2))
 #' do.call(get_prob_mass, as.list(unlist(dataset[2,])))
 #' @importFrom stats dhyper
 #' @export
@@ -98,8 +98,6 @@ calculate_CI <- function(data, alpha){
 #' the suggestion of the reviewer
 #' @return an updated version of of \code{time_series_results} data frame with CI values
 #' added (long format)
-#' @examples
-#' track_CI_change()
 #' @importFrom dplyr %>%
 #' @export
 track_CI_change <- function(data = time_series_results, summary_data = colony_stats){

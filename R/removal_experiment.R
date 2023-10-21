@@ -99,8 +99,8 @@ calculate_CI <- function(data, alpha){
 #' @return an updated version of of \code{time_series_results} data frame with CI values
 #' added (long format)
 #' @examples
-# 'track_CI_change()
-# '@importFrom dplyr %>%
+#' track_CI_change()
+#' @importFrom dplyr %>%
 #' @export
 track_CI_change <- function(data = time_series_results, summary_data = colony_stats){
   data <- data %>% dplyr::left_join(select(summary_data, N1, N2, marked_1, marked_2, colony))
@@ -144,18 +144,43 @@ cond_sample <-function(x, permutation = TRUE){
   sample(x)
 }
 
-# random sample of regression slopes based on the results
-# of the samples from the probability distribution
+#' Slopes based on random variables
+#'
+#' Calculate slopes of the linear regression of proportion of ants on time. The
+#' proportion for each time point and colony is sampled from the distribution
+#' returned by the \code{get_prob_mass} function.
+#'
+#' @param data A data frame with the number of ants captured outside the nest.
+#' Should contain the columns with colony ID, date, and numbers of marked and
+#' unmarked ants. This data frame can be retrieved from package by running
+#' \code{data("time_series_resuls", package = "overwintering")}
+#' @param randomize A logical indicating whether slopes should be calculated using
+#' permuted data, see below.
+#' @param sample_size A numeric indicating the number of samples taken from the
+#' distribution of the possible proportion of ants from the upper part of the nest
+#' among all ants being active outside the nest, see below.
+#' @details
+#' This function uses experiment data provided in the \code{time_series_results}
+#' dataset and \code{get_prob_mass} function to calculate the probability distribution
+#' of the proportion of ants captured outside the nest which come from the upper
+#' part of the nest. The inference is based on the numbers of marked ants among all
+#' captured individuals with marking label indicating the nest segment (upper or lower).
+#' The probability distributions, obtained separately for each colony and time point,
+#' is sampled many times, producing multiple data vectors for linear regression. These
+#' vectors can additionally be permuted to have the null distribution of regression
+#' slopes.
 #' @importFrom purrr pmap_dbl pmap
+#' @importFrom dplyr %>%
 calculate_regr_coeffs <- function(data,
-                                  colony_data,
                                   randomize = FALSE,
                                   sample_size = 1e4) {
+  data("colony_stats", envir = environment(), package = "overwintering")
   data <- dplyr::left_join(data, dplyr::select(colony_stats, "N1", "N2", "marked_1", "marked_2", "colony"))
   exp_data <- split(data, data$colony)
   coeffs <- list()
   for (i in 1:length(exp_data)){
-    timing <- exp_data[[i]]$duration
+    # calculate the number of days from the start of the measurements
+    timing <- as.numeric(exp_data$Date - min(exp_data$Date))
     coeffs[[i]] <- pmap(exp_data[[i]], get_prob_mass) %>%
       lapply(sample_distribution, sample_size = sample_size) %>%
       do.call(cbind, .) %>%

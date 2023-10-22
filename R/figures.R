@@ -1,4 +1,7 @@
-# Figure 5 in the publication
+#' Figure 5
+#' 
+#' Plot figure 5 from the publication.
+#' @export
 figure_5 <- function(){
   library(ggplot2)
   library(dplyr)
@@ -12,19 +15,22 @@ figure_5 <- function(){
     ylab("Proportion of ants from the\nupper nest segment")
 }
 
-# Figure 6 in the publication
-# note that the results of the Fig. 6 are subject to some small random variation
-# to avoid this effect you can set the initial value of the generator seed
+#' Figure 6
+#' 
+#' Plot figure 5 from the publication. Note that the results of the Fig. 6 are 
+#' subject to some small random variation to avoid this effect you can set the 
+#' initial value of the generator seed.
+#' @param sample_size A numeric indicating the number of samples to be taken from 
+#' the probability distribution of the proportion of ants from the upper nest segment
 #' @importFrom purrr map_chr map walk
 #' @importFrom stringi stri_extract
-figure_6 <- function(data = experiment_course, colony_data = ant_removal,
-                     sample_size = 1e4){
-
+#' @export
+figure_6 <- function(sample_size = 1e4){
+  data("time_series_results", package = "overwintering", envir = enviroment())
+  data("colony_stats", package = "overwintering", envir = enviroment())
   # calculate slope values after probability distribution sampling
-  empirical_slopes <- calculate_regr_coeffs(data = data, colony_data = colony_data,
-                                            sample_size = sample_size)
-  randomized_slopes <- calculate_regr_coeffs(data = data, colony_data = colony_data,
-                                             sample_size = sample_size, randomize = TRUE)
+  empirical_slopes <- calculate_regr_coeffs(sample_size = sample_size)
+  randomized_slopes <- calculate_regr_coeffs(sample_size = sample_size, randomize = TRUE)
 
   HDI_values <- list()
 
@@ -79,6 +85,9 @@ figure_6 <- function(data = experiment_course, colony_data = ant_removal,
     theme(axis.text.x = element_text(angle = 90))
 }
 
+#' Figure 3 legend
+#' 
+#' Plot the legend for Figure 3 from the publication.
 #' @export
 plot_legend_fig_3 <- function(){
   plot.new()
@@ -191,6 +200,9 @@ vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_dist
   }
 }
 
+#' Figure 3
+#' 
+#' Plot the main part of the Figure 3 from the publication.
 #' @export
 vertical_distribution_plot <- function(){
   data("vert_distribution", package = "overwintering", envir = environment())

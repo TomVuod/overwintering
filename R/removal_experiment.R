@@ -100,21 +100,23 @@ calculate_CI <- function(data, alpha){
 #' added (long format)
 #' @importFrom dplyr %>%
 #' @export
-track_CI_change <- function(data = time_series_results, summary_data = colony_stats){
-  data <- data %>% dplyr::left_join(select(summary_data, N1, N2, marked_1, marked_2, colony))
-  data <- data %>% dplyr::mutate(N1b = N1 - round(Dead_unm*(N1/(N1+N2))) - Upper_part_dead,
-                          N2 = N2 - round(Dead_unm*(N2/(N1+N2)))- Lower_part_dead,
+track_CI_change <- function(){
+  data("time_series_results", package = "overwintering", envir = enviroment())
+  data("colony_stats", package = "overwintering", envir = enviroment())
+  removal_experiment_results <- time_series_results %>% dplyr::left_join(select(colony_stats, N1, N2, marked_1, marked_2, colony))
+  removal_experiment_results <- removal_experiment_results %>% dplyr::mutate(N1b = N1 - round(Dead_unm*(N1/(N1+N2))) - Upper_part_dead,
+                          N2 = N2 - round(Dead_unm*(N2/(N1+N2)))- Lower_part_dead, # adjust for dead ants
                           N1 = N1b) %>%
     dplyr::mutate(marked_1 = marked_1 - Upper_part_dead, marked_2 = marked_2 - Lower_part_dead)
-  CI_limits <- pmap(data, get_prob_mass) %>%
+  CI_limits <- pmap(removal_experiment_results, get_prob_mass) %>%
     lapply(calculate_CI, alpha = 0.05) %>%
     do.call(rbind, .) %>%
-    cbind(data[,c("colony", "Date")]) %>%
+    cbind(removal_experiment_results[,c("colony", "Date")]) %>%
     dplyr::mutate(CI = "empirical")
-  CI_limits_null <- pmap(data, get_prob_mass, null_model = TRUE)  %>%
+  CI_limits_null <- pmap(removal_experiment_results, get_prob_mass, null_model = TRUE)  %>%
     lapply(calculate_CI, alpha = 0.05) %>%
     do.call(rbind, .) %>%
-    cbind(data[,c("colony", "Date")]) %>%
+    cbind(removal_experiment_results[,c("colony", "Date")]) %>%
     dplyr::mutate(CI = "null")
   return(rbind(CI_limits, CI_limits_null))
 }
@@ -148,18 +150,14 @@ cond_sample <-function(x, permutation = TRUE){
 #' proportion for each time point and colony is sampled from the distribution
 #' returned by the \code{get_prob_mass} function.
 #'
-#' @param data A data frame with the number of ants captured outside the nest.
-#' Should contain the columns with colony ID, date, and numbers of marked and
-#' unmarked ants. This data frame can be retrieved from package by running
-#' \code{data("time_series_resuls", package = "overwintering")}
 #' @param randomize A logical indicating whether slopes should be calculated using
 #' permuted data, see below.
 #' @param sample_size A numeric indicating the number of samples taken from the
 #' distribution of the possible proportion of ants from the upper part of the nest
 #' among all ants being active outside the nest, see below.
 #' @details
-#' This function uses experiment data provided in the \code{time_series_results}
-#' dataset and \code{get_prob_mass} function to calculate the probability distribution
+#' This function uses \code{get_prob_mass} function on experiment data provided in the 
+#' \code{time_series_results} and \code{colony_stats} datasets to calculate the probability distribution
 #' of the proportion of ants captured outside the nest which come from the upper
 #' part of the nest. The inference is based on the numbers of marked ants among all
 #' captured individuals with marking label indicating the nest segment (upper or lower).
@@ -169,12 +167,12 @@ cond_sample <-function(x, permutation = TRUE){
 #' slopes.
 #' @importFrom purrr pmap_dbl pmap
 #' @importFrom dplyr %>%
-calculate_regr_coeffs <- function(data,
-                                  randomize = FALSE,
+calculate_regr_coeffs <- function(randomize = FALSE,
                                   sample_size = 1e4) {
+  data("time_series_results", package = "overwintering", envir = enviroment())
   data("colony_stats", envir = environment(), package = "overwintering")
-  data <- dplyr::left_join(data, dplyr::select(colony_stats, "N1", "N2", "marked_1", "marked_2", "colony"))
-  exp_data <- split(data, data$colony)
+  data_combined <- dplyr::left_join(time_series_results, dplyr::select(colony_stats, "N1", "N2", "marked_1", "marked_2", "colony"))
+  exp_data <- split(data_combined, data_combined$colony)
   coeffs <- list()
   for (i in 1:length(exp_data)){
     # calculate the number of days from the start of the measurements

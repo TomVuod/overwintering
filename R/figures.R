@@ -26,8 +26,8 @@ figure_5 <- function(){
 #' @importFrom stringi stri_extract
 #' @export
 figure_6 <- function(sample_size = 1e4){
-  data("time_series_results", package = "overwintering", envir = enviroment())
-  data("colony_stats", package = "overwintering", envir = enviroment())
+  data("time_series_results", package = "overwintering", envir = environment())
+  data("colony_stats", package = "overwintering", envir = environment())
   # calculate slope values after probability distribution sampling
   empirical_slopes <- calculate_regr_coeffs(sample_size = sample_size)
   randomized_slopes <- calculate_regr_coeffs(sample_size = sample_size, randomize = TRUE)
@@ -138,11 +138,12 @@ plot_legend_fig_3 <- function(){
 
 parse_depth_col <- function(data){
   data[,c("depth_from", "depth_to")] <- do.call(rbind, stringi::stri_split(data$depth, fixed = "-"))
+  data[,c("depth_from", "depth_to")] <- lapply(data[,c("depth_from", "depth_to")], as.numeric) |> as.data.frame()
   data
 }
 
 vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_distribution){
-  queen_depths <- colony_metadata[[colony]]$queen_depths
+  queen_depths <- colony_metadata[[colony]]$queens_depth
   distr_data <- vert_distribution[[colony]]
   distr_data <- parse_depth_col(distr_data)
   # calculate mean worker position along depth gradient
@@ -155,8 +156,8 @@ vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_dist
       rect(c(0,0), c(65-i,65-i), c(10,10), c(66-i,66-i), border=rgb(val, val, val), col=rgb(val, val, val), lwd=0.1)
       if (val<0.5) text_col=1
       else text_col=0
-      if (dane$prop[i]>0)
-        text(5,65.5-i,as.character(round(dane$prop[i]*100, digits=1)),cex=0.9,col=rgb(text_col,text_col,text_col))
+      if (distr_data$prop[i]>0)
+        text(5,65.5-i,as.character(round(distr_data$prop[i]*100, digits=1)),cex=0.9,col=rgb(text_col,text_col,text_col))
     }
     text(5, 68, colony, cex=1.7)
     rect(c(0,0), c(0,0), c(10,10), c(65,65), lwd=1.3)
@@ -174,7 +175,7 @@ vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_dist
         text(5,60.5-i,as.character(round(distr_data$prop[i]*100, digits=1)),cex=0.9,col=rgb(text_col,text_col,text_col))
     }
     text(5, -3, as.character(colony_metadata[[colony]]$colony_size), cex=1.9)
-    text(5, 63, kolonia, cex=1.7)
+    text(5, 63, colony, cex=1.7)
     rect(c(0,0), c(0,0), c(10,10), c(60,60), lwd=1.3)
   }
   for (i in seq(0.2,10, by=0.8)){
@@ -202,11 +203,18 @@ vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_dist
 
 #' Figure 3
 #' 
-#' Plot the main part of the Figure 3 from the publication.
+#' Plot the main part of the Figure 3 from the publication. 
+#' @details 
+#' Note that the total number of workers for part of colonies are greater that those 
+#' reported in the publication. The reason for this is that here we take into account all the
+#' excavated workers whereas in the publication the sum was calculated from only 
+#' those individuals whose position was determined. As mentioned in the publication,
+#' for some of the workers I failed to determine the depth at which they stayed before 
+#' excavation.
 #' @export
 vertical_distribution_plot <- function(){
   data("vert_distribution", package = "overwintering", envir = environment())
-  data("colony", package = "overwintering", envir = environment())
+  data("colony_metadata", package = "overwintering", envir = environment())
   par(mfrow=c(1,12))
   par(mar=rep(0.3,4))
   plot.new()

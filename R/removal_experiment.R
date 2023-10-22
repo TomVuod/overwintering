@@ -101,22 +101,28 @@ calculate_CI <- function(data, alpha){
 #' @importFrom dplyr %>%
 #' @export
 track_CI_change <- function(){
-  data("time_series_results", package = "overwintering", envir = enviroment())
-  data("colony_stats", package = "overwintering", envir = enviroment())
+  data("time_series_results", package = "overwintering", envir = environment())
+  data("colony_stats", package = "overwintering", envir = environment())
   removal_experiment_results <- time_series_results %>% dplyr::left_join(select(colony_stats, N1, N2, marked_1, marked_2, colony))
   removal_experiment_results <- removal_experiment_results %>% dplyr::mutate(N1b = N1 - round(Dead_unm*(N1/(N1+N2))) - Upper_part_dead,
                           N2 = N2 - round(Dead_unm*(N2/(N1+N2)))- Lower_part_dead, # adjust for dead ants
                           N1 = N1b) %>%
     dplyr::mutate(marked_1 = marked_1 - Upper_part_dead, marked_2 = marked_2 - Lower_part_dead)
+  removal_experiment_results <- split(removal_experiment_results, removal_experiment_results$colony)
+  for (i in seq_along(removal_experiment_results)){
+    # calculate the number of days from the start of the measurements
+    removal_experiment_results[[i]]$duration <- as.numeric(removal_experiment_results[[i]]$Date - min(removal_experiment_results[[i]]$Date))
+  }
+  removal_experiment_results <- do.call(rbind,removal_experiment_results)
   CI_limits <- pmap(removal_experiment_results, get_prob_mass) %>%
     lapply(calculate_CI, alpha = 0.05) %>%
     do.call(rbind, .) %>%
-    cbind(removal_experiment_results[,c("colony", "Date")]) %>%
+    cbind(removal_experiment_results[,c("colony", "Date", "duration")]) %>%
     dplyr::mutate(CI = "empirical")
   CI_limits_null <- pmap(removal_experiment_results, get_prob_mass, null_model = TRUE)  %>%
     lapply(calculate_CI, alpha = 0.05) %>%
     do.call(rbind, .) %>%
-    cbind(removal_experiment_results[,c("colony", "Date")]) %>%
+    cbind(removal_experiment_results[,c("colony", "Date", "duration")]) %>%
     dplyr::mutate(CI = "null")
   return(rbind(CI_limits, CI_limits_null))
 }
@@ -169,14 +175,14 @@ cond_sample <-function(x, permutation = TRUE){
 #' @importFrom dplyr %>%
 calculate_regr_coeffs <- function(randomize = FALSE,
                                   sample_size = 1e4) {
-  data("time_series_results", package = "overwintering", envir = enviroment())
+  data("time_series_results", package = "overwintering", envir = environment())
   data("colony_stats", envir = environment(), package = "overwintering")
   data_combined <- dplyr::left_join(time_series_results, dplyr::select(colony_stats, "N1", "N2", "marked_1", "marked_2", "colony"))
   exp_data <- split(data_combined, data_combined$colony)
   coeffs <- list()
   for (i in 1:length(exp_data)){
     # calculate the number of days from the start of the measurements
-    timing <- as.numeric(exp_data$Date - min(exp_data$Date))
+    timing <- as.numeric(exp_data[[i]]$Date - min(exp_data[[i]]$Date))
     coeffs[[i]] <- pmap(exp_data[[i]], get_prob_mass) %>%
       lapply(sample_distribution, sample_size = sample_size) %>%
       do.call(cbind, .) %>%

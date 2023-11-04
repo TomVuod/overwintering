@@ -96,11 +96,15 @@ calculate_CI <- function(data, alpha){
 #' calculate how confidence interval for the null hypothesis and credible interval for
 #' actual data changes over the course of experiment; this issue was examined following
 #' the suggestion of the reviewer
+#' @param time_series_result A dataset with the results of the ant removal experiment;
+#' retrieved by \code{data("time_series_result", package = "overwintering")}.
+#' @param colony_stats A dataset containing numeric parameters describing colony state and
+#' experiment preparation;retrieved by \code{data("colony_stats", package = "overwintering")}.
 #' @return an updated version of of \code{time_series_results} data frame with CI values
 #' added (long format)
 #' @importFrom dplyr %>%
 #' @export
-track_CI_change <- function(){
+track_CI_change <- function(time_series_result, colony_stats){
   data("time_series_results", package = "overwintering", envir = environment())
   data("colony_stats", package = "overwintering", envir = environment())
   removal_experiment_results <- time_series_results %>% dplyr::left_join(select(colony_stats, N1, N2, marked_1, marked_2, colony))
@@ -156,13 +160,17 @@ cond_sample <-function(x, permutation = TRUE){
 #' proportion for each time point and colony is sampled from the distribution
 #' returned by the \code{get_prob_mass} function.
 #'
+#' @param time_series_result A dataset with the results of the ant removal experiment;
+#' retrieved by \code{data("time_series_result", package = "overwintering")}.
+#' @param colony_stats A dataset containing numeric parameters describing colony state and
+#' experiment preparation;retrieved by \code{data("colony_stats", package = "overwintering")}.
 #' @param randomize A logical indicating whether slopes should be calculated using
 #' permuted data, see below.
 #' @param sample_size A numeric indicating the number of samples taken from the
 #' distribution of the possible proportion of ants from the upper part of the nest
 #' among all ants being active outside the nest, see below.
 #' @details
-#' This function uses \code{get_prob_mass} function on experiment data provided in the 
+#' This function uses \code{get_prob_mass} function on experiment data provided in the
 #' \code{time_series_results} and \code{colony_stats} datasets to calculate the probability distribution
 #' of the proportion of ants captured outside the nest which come from the upper
 #' part of the nest. The inference is based on the numbers of marked ants among all
@@ -173,10 +181,10 @@ cond_sample <-function(x, permutation = TRUE){
 #' slopes.
 #' @importFrom purrr pmap_dbl pmap
 #' @importFrom dplyr %>%
-calculate_regr_coeffs <- function(randomize = FALSE,
+calculate_regr_coeffs <- function(time_series_results,
+                                  colony_stats,
+                                  randomize = FALSE,
                                   sample_size = 1e4) {
-  data("time_series_results", package = "overwintering", envir = environment())
-  data("colony_stats", envir = environment(), package = "overwintering")
   data_combined <- dplyr::left_join(time_series_results, dplyr::select(colony_stats, "N1", "N2", "marked_1", "marked_2", "colony"))
   exp_data <- split(data_combined, data_combined$colony)
   coeffs <- list()

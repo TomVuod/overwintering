@@ -1,11 +1,13 @@
 #' Figure 5
-#' 
+#'
 #' Plot figure 5 from the publication.
 #' @export
 figure_5 <- function(){
   library(ggplot2)
   library(dplyr)
-  track_CI_change() %>%
+  data("time_series_results", package = "overwintering", envir = environment())
+  data("colony_stats", package = "overwintering", envir = environment())
+  track_CI_change(time_series_results, colony_stats) %>%
     ggplot(aes(x = duration)) +
     geom_ribbon(aes(ymin = lower_limit, ymax = upper_limit, fill = CI), alpha = 0.5) +
     scale_fill_manual("Confidence interval", labels = c("Emprical data", "Null model"), values = c('#8d7500','#341202')) +
@@ -16,11 +18,11 @@ figure_5 <- function(){
 }
 
 #' Figure 6
-#' 
-#' Plot figure 5 from the publication. Note that the results of the Fig. 6 are 
-#' subject to some small random variation to avoid this effect you can set the 
+#'
+#' Plot figure 6 from the publication. Note that the results of the Fig. 6 are
+#' subject to some small random variation to avoid this effect you can set the
 #' initial value of the generator seed.
-#' @param sample_size A numeric indicating the number of samples to be taken from 
+#' @param sample_size A numeric indicating the number of samples to be taken from
 #' the probability distribution of the proportion of ants from the upper nest segment
 #' @importFrom purrr map_chr map walk
 #' @importFrom stringi stri_extract
@@ -29,8 +31,13 @@ figure_6 <- function(sample_size = 1e4){
   data("time_series_results", package = "overwintering", envir = environment())
   data("colony_stats", package = "overwintering", envir = environment())
   # calculate slope values after probability distribution sampling
-  empirical_slopes <- calculate_regr_coeffs(sample_size = sample_size)
-  randomized_slopes <- calculate_regr_coeffs(sample_size = sample_size, randomize = TRUE)
+  empirical_slopes <- calculate_regr_coeffs(time_series_results=time_series_results,
+                                            colony_stats=colony_stats,
+                                            sample_size=sample_size)
+  randomized_slopes <- calculate_regr_coeffs(time_series_results=time_series_results,
+                                             colony_stats=colony_stats,
+                                             sample_size=sample_size,
+                                             randomize=TRUE)
 
   HDI_values <- list()
 
@@ -86,7 +93,7 @@ figure_6 <- function(sample_size = 1e4){
 }
 
 #' Figure 3 legend
-#' 
+#'
 #' Plot the legend for Figure 3 from the publication.
 #' @export
 plot_legend_fig_3 <- function(){
@@ -202,14 +209,14 @@ vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_dist
 }
 
 #' Figure 3
-#' 
-#' Plot the main part of the Figure 3 from the publication. 
-#' @details 
-#' Note that the total number of workers for part of colonies are greater that those 
+#'
+#' Plot the main part of the Figure 3 from the publication.
+#' @details
+#' Note that the total number of workers for part of colonies are greater that those
 #' reported in the publication. The reason for this is that here we take into account all the
-#' excavated workers whereas in the publication the sum was calculated from only 
+#' excavated workers whereas in the publication the sum was calculated from only
 #' those individuals whose position was determined. As mentioned in the publication,
-#' for some of the workers I failed to determine the depth at which they stayed before 
+#' for some of the workers I failed to determine the depth at which they stayed before
 #' excavation.
 #' @export
 vertical_distribution_plot <- function(){

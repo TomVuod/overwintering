@@ -1,0 +1,61 @@
+---
+title: "Data_workflow"
+output: rmarkdown::pdf_document
+author: "Tomasz Włodarczyk"
+date: "2023-11-05"
+vignette: >
+  %\VignetteIndexEntry{Data_workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(overwintering)
+```
+
+# Introduction
+This vignettes replicates the data workflow used to generate the results shown in the following publication:
+Włodarczyk T. 2021. Functional spatial distribution and sociometric characteristics of Formica fusca ants during winter dormancy. Ecological Entomology 46, 419–427.
+I also provide the additional data, which have not previously been published in any form and regarding spatial distribution of ants.
+
+# Colony spatial distribution during the winter dormacy
+The `spatial_distribution` dataset contains the raw data collected in the field. As the ants were excavated the position of ant cluster was determined in two ways: measuring the depth range occupied by an ant cluster, and measuring the distance from the cluster center to the three reference points arranged arounf the nest site. The cluster center was  projected upwards to the ground level so that the points were assumed to lie on the same plane. To account for the dimensions of the cluster on the horizontal plane, the radius from the clutser center was also measures (taking rather the upper etimate of it). Thus, the whole cluster was represented as a vertically positioned cylinder. 
+
+```{r}
+data("spatial_distribution")
+head(spatial_distribution)
+```
+
+As we can see from the head of the dataset it also contains the date indicating when a given cluster was found. The whole excavation took usually several days.
+
+```{r}
+split(spatial_distribution, spatial_distribution$Colony) |>
+  lapply(function(x) cat(sprintf("Excavation period for the colony %s: %d days\n", x$Colony[1], as.integer(max(x$Date)-min(x$Date)+1))))
+
+```
+
+To transform the ditsances of projected cluster positions to their coorinated on the horizontal plane we need the coordinates of the reference points. They can be easily calculated having the mutual ditances among them. The problem reduces to finding triangle vertices given the side lenghts. 
+
+```{r}
+# load the data on the distances among reference points for each colony
+data("reference_points")
+
+# calculate the reference points coordinates
+reference_points_coords <- distances_to_coordinates(reference_points)
+```
+
+Now we can add to the `spatial_distribution` dataset the columns with the cluster center coordinates on the horizontal plane. Note that this is available for the samples in which distances to the reference points have been determined. This was not the case for some of the colonies and samples with low number of ants or ants whose intact position could not be determined. 
+
+```{r}
+spatial_distribution <- add_point_coordinates(spatial_distribution, reference_points_coords)
+```
+
+## Vertical distribution plot
+To construct the plot showing the vertical distriution of plot we should represent the distribution of ants along the vertical axis. We will divide each cluster into segments each of which will cover one centimeter in depth.

@@ -1,4 +1,7 @@
-# TO DO: handle the case with only two reference points (colony 17-31)
+rotation <- function(coords,angle){
+  c(x=coords["x"]*cos(angle)-coords["y"]*sin(angle),
+    y=coords["x"]*sin(angle)+coords["y"]*cos(angle))
+}
 
 find_reference_coordinates <- function(point_distances, C_up = TRUE){
   Ax <- Ay <- By <- 0
@@ -37,17 +40,28 @@ distances_to_coordinates <- function(reference_points_dist){
 add_point_coordinates <- function(spatial_data, reference_points){
   res <- data.frame()
   for(i in seq_len(nrow(spatial_data))){
-    colony <- as.character(spatial_data$colony[i])
+    colony <- as.character(spatial_data$Colony[i])
     reference_points_colony <- reference_points[[colony]]
     distances <- spatial_data[i,c("Distance to A", "Distance to B", "Distance to C")]
     if(sum(is.na(distances))==3)
       x <- y <- NA
+    else if(sum(is.na(distances))==2){ # the case of colony 17-31
+      # calculate angle of the |AC| vector
+      angle <- atan(reference_points_colony$C["y"]/reference_points_colony$C["x"])
+      # put C point on the x axis
+      C_point <- rotation(reference_points_colony$C,-angle)
+      x <- (C_point["x"]^2 + distances[1]^2 - distances[3]^2)/C_point["x"]/2
+      y <- -sqrt(point_distances['A_C']^2 - Cx^2)
+      coords <- rotation(c(x=x, y=y), angle)
+      x <- coords["x"]
+      y <- coords["y"]
+    }
     else{
-      corrds <- optim(initial_pos=c(3,3), distance_loss, ref_points=ref_points_colony, distances=distances)
+      coords <- optim(c(3,3), distance_loss, ref_points=reference_points_colony, distances=distances)
       x <- coords$par[1]
       y <- coords$par[2]
     }
-    res <- rbind(res, data.frame(position_x=x, position_y=y))
+    res <- rbind(res, data.frame(position_x=as.numeric(x), position_y=as.numeric(y)))
   }
-  cbind(spatial_distribution, res)
+  cbind(spatial_data, res)
 }

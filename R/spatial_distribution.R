@@ -6,11 +6,11 @@ find_reference_coordinates <- function(point_distances, C_up = TRUE){
   Cx <- (point_distances['A_B']^2 + point_distances['A_C']^2 - point_distances['B_C']^2)/point_distances['A_B']/2
   Cy <- sqrt(point_distances['A_C']^2 - Cx^2)*(-1+2*C_up)
   x <- c(Ax, Bx, Cx)
-  x <- x - min(x)
+  x <- as.numeric(x - min(x))
   y <- c(Ay, By, Cy)
-  y <- y - min(y)
+  y <- as.numeric(y - min(y))
 
-  list(A=c(Ax, Ay), B=c(Bx, By), C=c(Cx, Cy))
+  list(A=c(x=x[1], y=y[1]), B=c(x=x[2], y=y[2]), C=c(x=x[3], y=y[3]))
 }
 
 # TO DO: handle the case with only two reference points (colony 17-31)
@@ -20,18 +20,20 @@ distance_loss <- function(focal_point, ref_points, distances){
 }
 
 # TO DO: handle the case with only two reference points (colony 17-31)
+#' @export
 distances_to_coordinates <- function(reference_points_dist){
   res <- list()
   for(i in seq_len(nrow(reference_points_dist))){
-    colony <- reference_points_dist[i, "colony"]
+    colony <- reference_points_dist[i, "Colony"]
     arr <- reference_points_dist[i, "arrangement"]==1
     distances <- setNames(reference_points_dist[i, c("A_B", "A_C", "B_C")], c("A_B", "A_C", "B_C"))
-    coords <- find_reference_coordinates(distances, arr)
+    coords <- find_reference_coordinates(unlist(distances), arr)
     res <- setNames(c(res, list(coords)), c(names(res), colony))
   }
   res
 }
 
+#' @export
 add_point_coordinates <- function(spatial_data, reference_points){
   res <- data.frame()
   for(i in seq_len(nrow(spatial_data))){

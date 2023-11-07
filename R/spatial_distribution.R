@@ -16,13 +16,11 @@ find_reference_coordinates <- function(point_distances, C_up = TRUE){
   list(A=c(x=x[1], y=y[1]), B=c(x=x[2], y=y[2]), C=c(x=x[3], y=y[3]))
 }
 
-# TO DO: handle the case with only two reference points (colony 17-31)
 distance_loss <- function(focal_point, ref_points, distances){
   sum(mapply(function(ref_point, distance, focal_point) (sqrt(sum((ref_point - focal_point)^2))-distance)^2,
              ref_points, distances, MoreArgs = list(focal_point=focal_point)))
 }
 
-# TO DO: handle the case with only two reference points (colony 17-31)
 #' @export
 distances_to_coordinates <- function(reference_points_dist){
   res <- list()
@@ -36,6 +34,19 @@ distances_to_coordinates <- function(reference_points_dist){
   res
 }
 
+#' Add coordinates on horizontal plane
+#' 
+#' Add coordinates of the ant clusters mapped onto the horizontal plane. Calculations
+#' are performed based on the distances from the reference points to the cluster
+#' center projected upward to the ground level. Because the exact geometrical solution is
+#' often unavailable due to the distance measurement errors, the approximate solution
+#' is achieved through the minimizing the loss function, which is proportional to the
+#' differences between measured distances and those implied by the choice of the candidate center position. 
+#' 
+#'  @param spatial_data A data frame with the columns containing data on the distances
+#'  of the reference points to the cluster center shifted upward to the ground level.
+#'  @param reference_points A named list with the plane coordinates of the reference points.
+#'  List elements correspond to the different colonies. 
 #' @export
 add_point_coordinates <- function(spatial_data, reference_points){
   res <- data.frame()
@@ -48,10 +59,11 @@ add_point_coordinates <- function(spatial_data, reference_points){
     else if(sum(is.na(distances))==2){ # the case of colony 17-31
       # calculate angle of the |AC| vector
       angle <- atan(reference_points_colony$C["y"]/reference_points_colony$C["x"])
-      # put C point on the x axis
+      # put C point on the x axis to make the calculations easier
       C_point <- rotation(reference_points_colony$C,-angle)
       x <- (C_point["x"]^2 + distances[1]^2 - distances[3]^2)/C_point["x"]/2
       y <- -sqrt(point_distances['A_C']^2 - Cx^2)
+      # rotate back to original position
       coords <- rotation(c(x=x, y=y), angle)
       x <- coords["x"]
       y <- coords["y"]
@@ -64,4 +76,24 @@ add_point_coordinates <- function(spatial_data, reference_points){
     res <- rbind(res, data.frame(position_x=as.numeric(x), position_y=as.numeric(y)))
   }
   cbind(spatial_data, res)
+}
+
+
+#' @export
+determine_vertical_distribution <- function(spatial_distribution){
+  spatial_distribution$Worker_density <- spatial_distribution$'Worker number'/(spatial_distribution$'Depth to'-spatial_distribution$'Depth from')
+  spatial_distribution <- split(spatial_distribution, spatial_distribution$Colony)
+  res <- data.frame()
+  for(Colony in names(spatial_distribution)){
+    colony_data <- spatial_distribution[[Colony]]
+    valid_rows <- apply(as.matrix(colony_data[,c("Depth from", "Depth to", "Worker number")]),1,function(x) !any(is.na(x)))
+    colony_data <- colony_data[valid_rows,]
+    if(nrow(colony_data)==0) next
+    for(i in -5:55){
+      res <- rbind(res, data.frame(Colony=Colony, 
+                                   Depth=i, 
+                                   Worker_number=sum(colony_data[colony_data$'Depth from'<=i&colony_data$'Depth to'>i,"Worker_density"])))
+    }
+  }
+  res
 }

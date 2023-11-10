@@ -1,6 +1,6 @@
 rotation <- function(coords,angle){
-  c(x=coords["x"]*cos(angle)-coords["y"]*sin(angle),
-    y=coords["x"]*sin(angle)+coords["y"]*cos(angle))
+  c(x=as.vector(coords["x"]*cos(angle)-coords["y"]*sin(angle)),
+    y=as.vector(coords["x"]*sin(angle)+coords["y"]*cos(angle)))
 }
 
 find_reference_coordinates <- function(point_distances, C_up = TRUE){
@@ -53,18 +53,18 @@ add_point_coordinates <- function(spatial_data, reference_points){
   for(i in seq_len(nrow(spatial_data))){
     colony <- as.character(spatial_data$Colony[i])
     reference_points_colony <- reference_points[[colony]]
-    distances <- spatial_data[i,c("Distance to A", "Distance to B", "Distance to C")]
+    distances <- unlist(spatial_data[i,c("Distance to A", "Distance to B", "Distance to C")])
     if(sum(is.na(distances))==3)
       x <- y <- NA
-    else if(sum(is.na(distances))==2){ # the case of colony 17-31
+    else if(sum(is.na(distances))==1){ # the case of colony 17-31
       # calculate angle of the |AC| vector
       angle <- atan(reference_points_colony$C["y"]/reference_points_colony$C["x"])
       # put C point on the x axis to make the calculations easier
       C_point <- rotation(reference_points_colony$C,-angle)
       x <- (C_point["x"]^2 + distances[1]^2 - distances[3]^2)/C_point["x"]/2
-      y <- -sqrt(point_distances['A_C']^2 - Cx^2)
+      y <- -sqrt(distances[1]^2 - x^2)
       # rotate back to original position
-      coords <- rotation(c(x=x, y=y), angle)
+      coords <- rotation(c(x=as.vector(x), y=as.vector(y)), angle)
       x <- coords["x"]
       y <- coords["y"]
     }
@@ -83,17 +83,24 @@ add_point_coordinates <- function(spatial_data, reference_points){
 determine_vertical_distribution <- function(spatial_distribution){
   spatial_distribution$Worker_density <- spatial_distribution$'Worker number'/(spatial_distribution$'Depth to'-spatial_distribution$'Depth from')
   spatial_distribution <- split(spatial_distribution, spatial_distribution$Colony)
-  res <- data.frame()
+  res <- list()
   for(Colony in names(spatial_distribution)){
     colony_data <- spatial_distribution[[Colony]]
     valid_rows <- apply(as.matrix(colony_data[,c("Depth from", "Depth to", "Worker number")]),1,function(x) !any(is.na(x)))
     colony_data <- colony_data[valid_rows,]
     if(nrow(colony_data)==0) next
-    for(i in -5:55){
-      res <- rbind(res, data.frame(Colony=Colony, 
-                                   Depth=i, 
-                                   Worker_number=sum(colony_data[colony_data$'Depth from'<=i&colony_data$'Depth to'>i,"Worker_density"])))
+    start_depth <- ifelse(Colony=="18-14",-5,0)
+    colony_size <- sum(colony_data$'Worker number')
+    colony_data_vert_distr <- data.frame()
+    for(i in start_depth:55){
+      n_workers_segment <- sum(colony_data[colony_data$'Depth from'<=i&colony_data$'Depth to'>i,"Worker_density"])
+      colony_data_vert_distr <- rbind(colony_data_vert_distr, data.frame(Colony=Colony, 
+                                   Depth_from=i,
+                                   Depth_to=i+1,
+                                   Worker_number=n_workers_segment,
+                                   prop=n_workers_segment/colony_size))
     }
+    res <- setNames(c(res, list(colony_data_vert_distr)), c(names(res), Colony))
   }
   res
 }

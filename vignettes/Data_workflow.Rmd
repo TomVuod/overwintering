@@ -1,8 +1,8 @@
 ---
-title: "Data_workflow"
-output: rmarkdown::pdf_document
+title: "Data exploration, statistical analyses and setting ground for the plots"
+output: html_document
 author: "Tomasz Włodarczyk"
-date: "2023-11-05"
+date: "2023-11-10"
 vignette: >
   %\VignetteIndexEntry{Data_workflow}
   %\VignetteEngine{knitr::rmarkdown}
@@ -22,7 +22,9 @@ library(overwintering)
 
 # Introduction
 This vignettes replicates the data workflow used to generate the results shown in the following publication:
-Włodarczyk T. 2021. Functional spatial distribution and sociometric characteristics of Formica fusca ants during winter dormancy. Ecological Entomology 46, 419–427.
+
+[Włodarczyk T. 2021. Functional spatial distribution and sociometric characteristics of Formica fusca ants during winter dormancy. Ecological Entomology 46, 419–427.](https://resjournals.onlinelibrary.wiley.com/doi/10.1111/een.12983)
+
 I also provide the additional data, which have not previously been published in any form and regarding spatial distribution of ants.
 
 # Colony spatial distribution during the winter dormacy
@@ -36,7 +38,7 @@ head(spatial_distribution)
 As we can see from the head of the dataset it also contains the date indicating when a given cluster was found. The whole excavation took usually several days.
 
 ```{r}
-split(spatial_distribution, spatial_distribution$Colony) |>
+res <- split(spatial_distribution, spatial_distribution$Colony) |>
   lapply(function(x) cat(sprintf("Excavation period for the colony %s: %d days\n", x$Colony[1], as.integer(max(x$Date)-min(x$Date)+1))))
 
 ```
@@ -58,4 +60,16 @@ spatial_distribution <- add_point_coordinates(spatial_distribution, reference_po
 ```
 
 ## Vertical distribution plot
-To construct the plot showing the vertical distriution of plot we should represent the distribution of ants along the vertical axis. We will divide each cluster into segments each of which will cover one centimeter in depth.
+To construct the plot showing the vertical distriution of plot we should first prepare a correct data representation. We will divide each cluster into segments, each of which will cover the depth of one centimeter. Ants are assumed to be evenly distributed across these segments and lastly, segments representing the same depth are summed up across the clusters. 
+
+```{r fig.dim=c(10,8)}
+vertical_distribution_plot <- determine_vertical_distribution(spatial_distribution)
+
+# load dataset with colony metadata
+data("colony_metadata")
+
+# render the main part of the Fig 3 from the publication
+vertical_distribution_plot(vertical_distribution_plot, colony_metadata)
+```
+
+

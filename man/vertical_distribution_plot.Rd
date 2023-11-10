@@ -4,7 +4,14 @@
 \alias{vertical_distribution_plot}
 \title{Figure 3}
 \usage{
-vertical_distribution_plot()
+vertical_distribution_plot(vert_distribution, colony_metadata)
+}
+\arguments{
+\item{vert_distribution}{A list of data frames with the data on the density of ants along
+vertical axis.}
+
+\item{colony_metadata}{A list of lists with the various information about a colony. Retirved by
+calling \code{data(colony_metadata)}}
 }
 \description{
 Plot the main part of the Figure 3 from the publication.

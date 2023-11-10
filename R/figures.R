@@ -143,18 +143,11 @@ plot_legend_fig_3 <- function(){
 }
 
 
-parse_depth_col <- function(data){
-  data[,c("depth_from", "depth_to")] <- do.call(rbind, stringi::stri_split(data$depth, fixed = "-"))
-  data[,c("depth_from", "depth_to")] <- lapply(data[,c("depth_from", "depth_to")], as.numeric) |> as.data.frame()
-  data
-}
-
 vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_distribution){
   queen_depths <- colony_metadata[[colony]]$queens_depth
   distr_data <- vert_distribution[[colony]]
-  distr_data <- parse_depth_col(distr_data)
   # calculate mean worker position along depth gradient
-  mean_depth <- sum(distr_data$prop*(distr_data$depth_from+0.5))
+  mean_depth <- sum(distr_data$prop*(distr_data$Depth_from+0.5))
   if (colony=='18-14'){ # in this colony part of workers overwintered in a tree sump
     for (i in 1:nrow(distr_data)){
       # adjust color to normalized ant density along vertical axis
@@ -211,6 +204,10 @@ vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_dist
 #' Figure 3
 #'
 #' Plot the main part of the Figure 3 from the publication.
+#' @param vert_distribution A list of data frames with the data on the density of ants along
+#' vertical axis.
+#' @param colony_metadata A list of lists with the various information about a colony. Retirved by 
+#' calling \code{data(colony_metadata)}
 #' @details
 #' Note that the total number of workers for part of colonies are greater that those
 #' reported in the publication. The reason for this is that here we take into account all the
@@ -219,9 +216,7 @@ vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_dist
 #' for some of the workers I failed to determine the depth at which they stayed before
 #' excavation.
 #' @export
-vertical_distribution_plot <- function(){
-  data("vert_distribution", package = "overwintering", envir = environment())
-  data("colony_metadata", package = "overwintering", envir = environment())
+vertical_distribution_plot <- function(vert_distribution, colony_metadata){
   par(mfrow=c(1,12))
   par(mar=rep(0.3,4))
   plot.new()

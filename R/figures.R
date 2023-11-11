@@ -14,7 +14,8 @@ figure_5 <- function(){
     geom_line(aes(y = maximum_likelihood, color = CI), lwd=1) +
     scale_color_manual("Maximum likelihood", labels = c("Emprical data", "Null model"), values = c('#8d7500','#341202')) +
     facet_grid(.~colony, scales = "free_x") +
-    ylab("Proportion of ants from the\nupper nest segment")
+    ylab("Proportion of ants from the\nupper nest segment")+
+    xlab("Time (days)")
 }
 
 #' Figure 6

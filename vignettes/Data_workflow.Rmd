@@ -55,7 +55,7 @@ data("reference_points")
 reference_points_coords <- distances_to_coordinates(reference_points)
 ```
 
-Now we can add to the `spatial_distribution` dataset the columns with the cluster center coordinates on the horizontal plane. Note that this is available for the samples in which distances to the reference points have been determined. This was not the case for some of the colonies and samples with low number of ants or ants whose intact position could not be determined. 
+Now we can add to the `spatial_distribution` dataset the columns with the cluster center coordinates on the horizontal plane. Note that this is available for the samples in which distances to the reference points have been determined. This was not the case for some of the colonies and samples with low number of ants or ants whose intact position could not be determined. Since the measurements inevitably entail the error component, the exact solution from geometric calculation are usually not available. This is why the solutuion is obtained through the optimization function, which looks for the position of the cluster center such that the distances to the reference points are close to the reported ones. 
 
 ```{r}
 spatial_distribution <- add_point_coordinates(spatial_distribution, reference_points_coords)
@@ -79,12 +79,40 @@ We can plot separately the legend to the Figure 3.
 plot_legend_fig_3()
 ```
 
-# Figure 5
-```{r message=FALSE, fig.dim=c(10,5)}
+# Forager removal experiment
+
+The dataset `time_series_results` presents the outcome of the experiment in which part of workers were marked with the color used being dependent on whether ant occipied the upper or lower part of the excavated nest. In the laboratory ants penetrating the area outside the aritifical nests were collected on a daily basis producing the time series data. The dataset presents the cumulative results as the experiment was going on. The paint colors used to differentiate between both categories of ants were swept across colonies. 
+
+```{r}
+data("time_series_results")
+head(time_series_results)
+```
+ 
+We can check the final experiment output for each colony.
+
+```{r}
+for(colony in unique(time_series_results$colony)){
+  max_ind <- which.max(time_series_results[time_series_results$colony==colony,"Date"])
+  print(time_series_results[time_series_results$colony==colony,][max_ind,,drop=FALSE])
+}
+```
+
+To perform statistical calculations we need some quantitive data related to the ant marking. They are included in the `colony_stats` dataset.
+
+```{r}
+data("colony_stats")
+colony_stats
+```
+
+With these numbers we can calculate the probability for each possible proportion of ants from upper (or lower) part of the nest among
+all the ants which have been removed.
+
+## Figure 5
+```{r message=FALSE, fig.dim=c(10,3)}
 figure_5()
 ```
 
-# Figure 6
-```{r message=FALSE, fig.dim=c(10,5)}
+## Figure 6
+```{r message=FALSE, fig.dim=c(10,3)}
 figure_6()
 ```

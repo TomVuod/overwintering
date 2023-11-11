@@ -66,7 +66,7 @@ get_prob_mass <- function(removed_1, removed_2, unmarked, marked_1, marked_2,
 #' likelihood, and the upper limit for the proportion of ants coming from the
 #' upper part of the nest.
 calculate_CI <- function(data, alpha){
-  if (!is.data.frame(data)) stop(paste0(sQuote("Data"), " shoud be a data frame"))
+  if (!is.data.frame(data)) stop(paste0(sQuote("data"), " shoud be a data frame"))
   if (any(is.na(data$prob))) stop("NA probability values")
   if (round(sum(data$prob), 5) != 1) stop("Probability distribution should sum up to 1")
   if (!is.numeric(alpha)) stop("Alpha should be numeric")

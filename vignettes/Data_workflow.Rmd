@@ -1,6 +1,8 @@
 ---
 title: "Data exploration, statistical analyses and setting ground for the plots"
-output: html_document
+output: 
+  html_document:
+    toc: true
 author: "Tomasz Włodarczyk"
 date: "2023-11-10"
 vignette: >
@@ -72,4 +74,17 @@ data("colony_metadata")
 vertical_distribution_plot(vertical_distribution_plot, colony_metadata)
 ```
 
+We can plot separately the legend to the Figure 3.
+```{r fig.dim=c(6,8)}
+plot_legend_fig_3()
+```
 
+# Figure 5
+```{r message=FALSE, fig.dim=c(10,5)}
+figure_5()
+```
+
+# Figure 6
+```{r message=FALSE, fig.dim=c(10,5)}
+figure_6()
+```

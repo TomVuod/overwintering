@@ -1,3 +1,58 @@
+#' Figure 4
+#'
+#' Plot figure 4 from the publication.
+chart_marking<-function(data, w1=15, sep1=12, w2=10, h2=7.5){
+  par(mfrow=c(1,5))
+  for (i in 1:5){
+    r1<-(data[i,]$removed_1/data[i,]$removed_total)*100
+    r2<-(data[i,]$removed_2/data[i,]$removed_total)*100
+    N_2<-100-(data[i,]$max_prob*100)
+    n2<-(data[i,'N2']/(data[i,'N1']+data[i,'N2']))*100
+    m1<-100*(data[i,'marked_1']/(data[i,'N1']+data[i,'N2']))
+    m2<-100*(data[i,'marked_2']/(data[i,'N1']+data[i,'N2']))
+    par(mar=rep(0.3,4))
+    plot.new()
+    plot.window(c(-14,(2*w1+sep1+12)), c(-7,140))
+    
+    rect(0,0,w1,m2, border=NA, lwd=1.5, col="#009F10")
+    rect(0,m2,w1,n2, border=NA, lwd=1.5, col='#BCE78B')
+    rect(0,n2,w1,100-m1, border=NA, lwd=1.5, col="#E6B97D")
+    rect(0,100-m1,w1,100, border=NA, lwd=1.5, col="#FF6904")
+    rect(0,0,w1,100, border=rgb(0,0,0), lwd=1.5, col=rgb(1,1,1, alpha=0))
+
+    rect(w1+sep1,0,2*w1+sep1,r2, border=NA, lwd=1.5,  col='#009F10')
+    rect(w1+sep1,r2,2*w1+sep1,N_2, border=NA, lwd=1.5, col="#BCE78B")
+    rect(w1+sep1,N_2,2*w1+sep1,(100-r1), border=NA, lwd=1.5, col="#E6B97D")
+    rect(w1+sep1,100-r1,2*w1+sep1,100, border=NA, lwd=1.5,col="#FF6904")
+    rect(w1+sep1,0,2*w1+sep1,100, border=rgb(0,0,0), lwd=1.5, col=rgb(1,1,1,alpha=0))
+    
+    lines(c(w1+0.5*sep1, w1+0.5*sep1), c(100-data[i,]$CI_min_null*100, 100-data[i,]$CI_max_null*100), lwd=1.5)
+    lines(c(w1+0.5*sep1-1, w1+0.5*sep1+1), rep(100-data[i,]$CI_min_null*100,2), lwd=1.5)
+    lines(c(w1+0.5*sep1-1, w1+0.5*sep1+1), rep(100-data[i,]$CI_max_null*100,2), lwd=1.5)
+    
+    lines(c(w1+sep1+w1*0.5, w1+sep1+w1*0.5), c(100-data[i,]$CI_min*100, 100-data[i,]$CI_max*100), lwd=1.5)
+    lines(c(w1+sep1+w1*0.5-1, w1+sep1+w1*0.5+1), rep(100-data[i,]$CI_min*100,2), lwd=1.5)
+    lines(c(w1+sep1+w1*0.5-1, w1+sep1+w1*0.5+1), rep(100-data[i,]$CI_max*100,2), lwd=1.5)
+    
+    for (j in 0:10){
+      lines(c(-1.5, 0),c(j*10,j*10), lwd=1.4)
+      lines(c(sep1+2*w1, sep1+2*w1+1.5),c(j*10,j*10), lwd=1.4)
+      if (i==1)
+        text(-8, j*10, as.character(round(j/10, digits=1)), cex=1.9)
+      if (i==5)
+        text(sep1+2*w1+8, j*10, as.character(round(1-(j/10), digits=1)), cex=1.9)
+      
+    }
+    text(w1*0.5-1, 105, 'colony', cex=1.9)
+    text(sep1+1.5*w1+1, 105, 'foragers', cex=1.9)
+    text(w1+0.5*sep1, 111, sprintf('Colony #%s', i), cex=1.95)
+    text(w1*0.5, -8, as.character(data[i,]$group1+data[i,]$group2), cex=1.9)
+    text(sep1+1.5*w1, -8, as.character(data[i,]$removed_total), cex=1.9)
+  }
+}
+
+
+
 #' Figure 5
 #'
 #' Plot figure 5 from the publication.

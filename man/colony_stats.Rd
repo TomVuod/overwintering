@@ -7,6 +7,7 @@
 \format{
 Columns description:
 \describe{
+\item{colony}{colony ID}
 \item{N1}{number of workers from the upper part of the nest}
 \item{N2}{number of workers from the lower part of the nest}
 \item{marked_1}{number of marked workers from the upper part of the nest}
@@ -16,7 +17,6 @@ which have been marked}
 \item{removed_2}{number of removed workers from the lower part of the nest
 which have been marked}
 \item{removed total}{total number of removed workers}
-\item{colony}{colony ID}
 }
 }
 \usage{

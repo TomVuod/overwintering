@@ -65,6 +65,7 @@ get_prob_mass <- function(removed_1, removed_2, unmarked, marked_1, marked_2,
 #' @return A numeric vector with elements corresponding to lower limit, maximum
 #' likelihood, and the upper limit for the proportion of ants coming from the
 #' upper part of the nest.
+#' @export
 calculate_CI <- function(data, alpha){
   if (!is.data.frame(data)) stop(paste0(sQuote("data"), " shoud be a data frame"))
   if (any(is.na(data$prob))) stop("NA probability values")

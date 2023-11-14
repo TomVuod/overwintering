@@ -105,9 +105,50 @@ colony_stats
 ```
 
 With these numbers we can calculate the probability for each possible proportion of ants from upper (or lower) part of the nest among
-all the ants which have been removed.
+all the ants which have been removed. Let's make the calculations for colony 18-59 with the use of data from the whole experiment.
+```{r fig.dim=c(8,8)}
+library(dplyr)
+library(ggplot2)
+ant_numbers <- time_series_results %>% 
+  filter(colony=="18-59") %>% 
+  filter(Date==max(Date)) 
 
-## Figure 5
+# We need also the information about numbers and proportion of marked ants in the colony.
+data(colony_stats)
+colony_params <- colony_stats[colony_stats$colony == "18-59",]
+prob_mass <- do.call(get_prob_mass, c(ant_numbers, colony_params[,c("N1", "N2", "marked_1", "marked_2")]))
+ggplot(prob_mass, aes(x = upper_part_proportion, y = prob))+
+  geom_bar(stat = "identity")+
+  ggtitle("Probability distribution")+
+  xlab("Proportion of ants from the upper nest segment")+
+  ylab("Probability")
+
+
+results_on_completion <- time_series_results %>%
+  group_by(colony) %>%
+  filter(Date == max(Date)) %>%
+  ungroup()
+colony_stats <- merge(colony_stats, results_on_completion)
+CI <- purrr::pmap(colony_stats, get_prob_mass) %>%
+  lapply(function(x) calculate_CI(x, alpha = 0.05)) %>% 
+  {function(x) do.call(rbind,x)}()
+colnames(CI) <- c("CI_min", "max_prob", "CI_max")
+CI_null <- purrr::pmap(colony_stats, get_prob_mass, null_model = TRUE) %>%
+  lapply(function(x) calculate_CI(x, alpha = 0.05)) %>% 
+  {function(x) do.call(rbind,x)}()
+colnames(CI_null) <- c("CI_min_null", "max_prob_null", "CI_max_null")
+colony_stats <- cbind(colony_stats, CI, CI_null)
+  
+```
+
+Based on these results we can determine the confidence interval and point estimate for the proportion of ants from the upper nest segment. 
+
+```{r}
+calculate_CI(prob_mass, alpha=0.05)
+```
+
+The function generating Figure 5 repeates this procedure over the whole dataset.
+
 ```{r message=FALSE, fig.dim=c(10,3)}
 figure_5()
 ```

@@ -2,7 +2,7 @@
 #'
 #' Plot figure 4 from the publication.
 #' @export
-chart_marking<-function(data, w1=15, sep1=12, w2=10, h2=7.5){
+figure_4 <- function(data, w1=15, sep1=12, w2=10, h2=7.5){
   par(mfrow=c(1,5))
   for (i in 1:5){
     r1<-(data[i,]$removed_1/data[i,]$removed_total)*100

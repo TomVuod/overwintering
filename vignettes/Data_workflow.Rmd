@@ -106,7 +106,7 @@ colony_stats
 
 With these numbers we can calculate the probability for each possible proportion of ants from upper (or lower) part of the nest among
 all the ants which have been removed. Let's make the calculations for colony 18-59 with the use of data from the whole experiment.
-```{r fig.dim=c(8,8)}
+```{r fig.dim=c(8,5)}
 library(dplyr)
 library(ggplot2)
 ant_numbers <- time_series_results %>% 
@@ -122,13 +122,29 @@ ggplot(prob_mass, aes(x = upper_part_proportion, y = prob))+
   ggtitle("Probability distribution")+
   xlab("Proportion of ants from the upper nest segment")+
   ylab("Probability")
+```
 
 
+Based on these results we can determine the credible interval and point estimate for the proportion of ants from the upper nest segment. 
+
+```{r}
+calculate_CI(prob_mass, alpha=0.05)
+```
+
+## Figure 4
+We can also calculate the confidence interval for the null hypothesis which assumes that each ant, regardless its location in the nest, has the same probability of becoming a forager. Thus, the proportion of the foragers which come from the upper nest segment can be modeled using hypergeometric distribution, taking as parameters the total number of foragers, and the numbers of ants occupying the upper and lower segment of the nest. The evidenced and inferred  attribution of the foragers to the nest segment can be compared to the whole colony data, as shown on Figure 4 in the publication.   
+
+```{r fig.dim=c(10,6)}
+# retrieve the time series results on the last day of experiment
 results_on_completion <- time_series_results %>%
   group_by(colony) %>%
   filter(Date == max(Date)) %>%
   ungroup()
+
+# add colony-level data on the number of marked ants and the sizes of the spatial groups
 colony_stats <- merge(colony_stats, results_on_completion)
+
+# calculate credible and confidence intervals 
 CI <- purrr::pmap(colony_stats, get_prob_mass) %>%
   lapply(function(x) calculate_CI(x, alpha = 0.05)) %>% 
   {function(x) do.call(rbind,x)}()
@@ -138,16 +154,13 @@ CI_null <- purrr::pmap(colony_stats, get_prob_mass, null_model = TRUE) %>%
   {function(x) do.call(rbind,x)}()
 colnames(CI_null) <- c("CI_min_null", "max_prob_null", "CI_max_null")
 colony_stats <- cbind(colony_stats, CI, CI_null)
-  
+
+figure_4(colony_stats)  
 ```
 
-Based on these results we can determine the confidence interval and point estimate for the proportion of ants from the upper nest segment. 
+## Figure 5
 
-```{r}
-calculate_CI(prob_mass, alpha=0.05)
-```
-
-The function generating Figure 5 repeates this procedure over the whole dataset.
+The function generating Figure 5 repeates the above procedure over the whole dataset.
 
 ```{r message=FALSE, fig.dim=c(10,3)}
 figure_5()

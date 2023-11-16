@@ -4,7 +4,15 @@
 \alias{figure_4}
 \title{Figure 4}
 \usage{
-figure_4(data, w1 = 15, sep1 = 12, w2 = 10, h2 = 7.5)
+figure_4(data, w = 15, sep = 12)
+}
+\arguments{
+\item{data}{A data frame with the results of the colony-level measurements and
+mark-remove experiment. For the details on how to prepare the input data run \code{vignette("Data_workflow")}}
+
+\item{sep}{A one-length numeric vector specifying the width of the gap between bars.}
+
+\item{w1}{A one-length numeric vector specifying the width of the bars}
 }
 \description{
 Plot figure 4 from the publication.

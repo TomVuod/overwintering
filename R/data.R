@@ -1,18 +1,7 @@
-#' A list of data frames representing data on different colonies.
-#'
-#' @format Each data frame contains following columns:
-#'   \describe{
-#'     \item{colony}{colony ID}
-#'     \item{depth}{depth range, in cm}
-#'     \item{worker_number}{worker number within given depth range}
-#'     \item{cumulative_number}{sum of worker number from actual and
-#'       upper depth ranges}
-#'     }
-"vert_distribution"
-
 #' A data frame summarizing ant removal experiment across colonies
 #' @format Columns description:
 #'   \describe{
+#'     \item{colony}{colony ID}
 #'     \item{N1}{number of workers from the upper part of the nest}
 #'     \item{N2}{number of workers from the lower part of the nest}
 #'     \item{marked_1}{number of marked workers from the upper part of the nest}
@@ -22,7 +11,6 @@
 #'     \item{removed_2}{number of removed workers from the lower part of the nest
 #'     which have been marked}
 #'     \item{removed total}{total number of removed workers}
-#'     \item{colony}{colony ID}
 #'   }
 "colony_stats"
 
@@ -74,3 +62,38 @@
 #'  The vector length is equivalent to the number of queens.}
 #' }
 "colony_metadata"
+
+#' Worker spatial distribution within the nest
+#' 
+#' A data frame presenting results of the F. fusca colonies excavation during the winter.
+#' @format Columns description:
+#'  \describe{
+#'    \item{Colony}{Colony ID.}
+#'    \item{Point_ID}{ID of the place (nest part) where ants were collected.}
+#'    \item{Date}{Collection date. Note that different part of the colonies were 
+#'    often collected in different days.}
+#'    
+#'    \item{Distance to A}{Distance in cm from the central point of the excacated part of the nest
+#'     to the reference point A.}
+#'    \item{Distance to B}{Distance in cm from the central point of the excacated part of the nest
+#'     to the reference point B.}
+#'    \item{Distance to C}{Distance in cm from the central point of the excacated part of the nest
+#'     to the reference point C.}
+#'    \item{Radius}{The maximum distance from the central point of the excavated part of the nest
+#'    where ants were found and collected. Measured on horizontal plane.}
+#'    \item{Deprt from}{The minimum depth at which ants from the excavated part of the nest
+#'    were found and collected.}
+#'    \item{Deprt to}{The maximum depth at which ants from the excavated part of the nest
+#'    were found and collected.}
+#'    \item{Worker number}{Sum of the worker excavated from the corresponding part of the nest.}
+#'  }
+"spatial_distribution"
+
+
+#' Reference points 
+#' 
+#' Data frame presenting distances between points used as reference to define the position of the
+#' places (nest parts) where ants were found. Arrangement equal to one means that the order of the points
+#' going clockwise was: A -> C -> B.
+#' 
+"reference_points" 

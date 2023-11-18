@@ -1,6 +1,6 @@
 Package: overwintering
 Title: Materials supporting publication
-Version: 0.0.0.9004
+Version: 0.0.0.9005
 Authors@R: 
     person("Tomasz", "Włodarczyk", , "tomwlo@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1554-9699"))

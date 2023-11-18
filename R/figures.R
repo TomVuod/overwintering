@@ -5,7 +5,7 @@
 #' mark-remove experiment. For the details on how to prepare the input data run \code{vignette("Data_workflow")}
 #' @param w1 A one-length numeric vector specifying the width of the bars
 #' @param sep A one-length numeric vector specifying the width of the gap between bars.
-#' 
+#' @export
 figure_4 <- function(data, w=15, sep=12){
   par(mfrow=c(1,5))
   for (i in 1:5){
@@ -18,7 +18,7 @@ figure_4 <- function(data, w=15, sep=12){
     par(mar=rep(0.3,4))
     plot.new()
     plot.window(c(-14,(2*w+sep+12)), c(-7,140))
-    
+
     rect(0,0,w,m2, border=NA, lwd=1.5, col="#009F10")
     rect(0,m2,w,n2, border=NA, lwd=1.5, col='#BCE78B')
     rect(0,n2,w,100-m1, border=NA, lwd=1.5, col="#E6B97D")
@@ -267,7 +267,7 @@ vertical_distribution_plot_colony <- function(colony, colony_metadata, vert_dist
 #' Plot the main part of the Figure 3 from the publication.
 #' @param vert_distribution A list of data frames with the data on the density of ants along
 #' vertical axis.
-#' @param colony_metadata A list of lists with the various information about a colony. Retirved by 
+#' @param colony_metadata A list of lists with the various information about a colony. Retirved by
 #' calling \code{data(colony_metadata)}
 #' @details
 #' Note that the total number of workers for part of colonies are greater that those

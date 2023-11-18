@@ -30,7 +30,7 @@ This vignettes replicates the data workflow used to generate the results shown i
 I also provide the additional data, which have not previously been published in any form and regarding spatial distribution of ants.
 
 # Colony spatial distribution during the winter dormacy
-The `spatial_distribution` dataset contains the raw data collected in the field. As the ants were excavated the position of ant cluster was determined in two ways: measuring the depth range occupied by an ant cluster, and measuring the distance from the cluster center to the three reference points arranged arounf the nest site. The cluster center was  projected upwards to the ground level so that the points were assumed to lie on the same plane. To account for the dimensions of the cluster on the horizontal plane, the radius from the clutser center was also measures (taking rather the upper etimate of it). Thus, the whole cluster was represented as a vertically positioned cylinder. 
+The `spatial_distribution` dataset contains the raw data collected in the field. As the ants were excavated the position of ant cluster was determined in two ways: measuring the depth range occupied by an ant cluster, and measuring the distance from the cluster center to the three reference points arranged around the nest site. The cluster center was  projected upwards to the ground level so that the points were assumed to lie on the same plane. To account for the dimensions of the cluster on the horizontal plane, the radius from the cluster center was also measures (taking rather the upper estimate of it). Thus, the whole cluster was represented as a vertically positioned cylinder. 
 
 ```{r}
 data("spatial_distribution")
@@ -45,7 +45,7 @@ res <- split(spatial_distribution, spatial_distribution$Colony) |>
 
 ```
 
-To transform the ditsances of projected cluster positions to their coorinated on the horizontal plane we need the coordinates of the reference points. They can be easily calculated having the mutual ditances among them. The problem reduces to finding triangle vertices given the side lenghts. 
+To transform the distances of projected cluster positions to their coordinates on the horizontal plane we need the coordinates of the reference points. They can be easily calculated having the mutual distances among them. The problem reduces to finding triangle vertices given the side lengths. 
 
 ```{r}
 # load the data on the distances among reference points for each colony
@@ -55,14 +55,14 @@ data("reference_points")
 reference_points_coords <- distances_to_coordinates(reference_points)
 ```
 
-Now we can add to the `spatial_distribution` dataset the columns with the cluster center coordinates on the horizontal plane. Note that this is available for the samples in which distances to the reference points have been determined. This was not the case for some of the colonies and samples with low number of ants or ants whose intact position could not be determined. Since the measurements inevitably entail the error component, the exact solution from geometric calculation are usually not available. This is why the solutuion is obtained through the optimization function, which looks for the position of the cluster center such that the distances to the reference points are close to the reported ones. 
+Now we can add to the `spatial_distribution` dataset the columns with the cluster center coordinates on the horizontal plane. Note that this is available for the samples in which distances to the reference points have been determined. This was not the case for some of the colonies and samples with low number of ants or ants whose intact position could not be determined. Since the measurements inevitably entail the error component, the exact solution from geometric calculation are usually not available. This is why the solution is obtained through the optimization function, which looks for the position of the cluster center such that the distances to the reference points are close to the reported ones. 
 
 ```{r}
 spatial_distribution <- add_point_coordinates(spatial_distribution, reference_points_coords)
 ```
 
 ## Vertical distribution plot
-To construct the plot showing the vertical distriution of plot we should first prepare a correct data representation. We will divide each cluster into segments, each of which will cover the depth of one centimeter. Ants are assumed to be evenly distributed across these segments and lastly, segments representing the same depth are summed up across the clusters. 
+To construct the plot showing the vertical distribution of plot we should first prepare a correct data representation. We will divide each cluster into segments, each of which will cover the depth of one centimeter. Ants are assumed to be evenly distributed across these segments and lastly, segments representing the same depth are summed up across the clusters. 
 
 ```{r fig.dim=c(10,8)}
 vertical_distribution_plot <- determine_vertical_distribution(spatial_distribution)
@@ -97,7 +97,7 @@ for(colony in unique(time_series_results$colony)){
 }
 ```
 
-To perform statistical calculations we need some quantitive data related to the ant marking. They are included in the `colony_stats` dataset.
+To perform statistical calculations we need some quantitative data related to the ant marking. They are included in the `colony_stats` dataset.
 
 ```{r}
 data("colony_stats")
@@ -168,7 +168,7 @@ figure_5()
 
 ## Figure 6
 
-To see whether the proportion of ants from the upper segment of nest changes over time, we can fit a linear model with the time elapsed from the experiment start as an explanatory variable. We can be sure about the occupied nest segment only in the case of marked workes. For all the wokers, including umarked ones, we have to rely on the postrior distribution which is returned by the `get_prob_mass` function. To have the realiable estimate of the temporal trend the probability ditribution should be sampled many times, producing the data for multiple linear regressions. The null model is generated by shuffling proportion of ants across time points. See [publication](https://resjournals.onlinelibrary.wiley.com/doi/10.1111/een.12983) for more details.
+To see whether the proportion of ants from the upper segment of nest changes over time, we can fit a linear model with the time elapsed from the experiment start as an explanatory variable. We can be sure about the occupied nest segment only in the case of marked workers. For all the workers, including unmarked ones, we have to rely on the posterior distribution which is returned by the `get_prob_mass` function. To have the reliable estimate of the temporal trend the probability distribution should be sampled many times, producing the data for multiple linear regressions. The null model is generated by shuffling proportion of ants across time points. See [publication](https://resjournals.onlinelibrary.wiley.com/doi/10.1111/een.12983) for more details.
 
 ```{r message=FALSE, fig.dim=c(10,3)}
 figure_6()

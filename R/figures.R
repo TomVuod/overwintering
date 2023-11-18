@@ -141,7 +141,8 @@ figure_6 <- function(sample_size = 1e4){
   ggplot(plot_data, aes(x = x, y =y )) +
     geom_line(aes(lty = model)) +
     geom_area(aes(x = x, y = y, group = model),
-              data = subset(plot_data, HDI_mask), alpha = 0.5) +
+              data = subset(plot_data, HDI_mask), alpha = 0.5,
+              position = 'identity') +
     facet_grid(.~colony) +
     labs(linetype = "Legend", x = "Slope value",y = "Count (density)") +
     theme(panel.background = element_rect(fill = "white", colour = "#c8c8c8")) +

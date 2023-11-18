@@ -173,3 +173,12 @@ To see whether the proportion of ants from the upper segment of nest changes ove
 ```{r message=FALSE, fig.dim=c(10,3)}
 figure_6()
 ```
+
+# Colony size and head width
+```{r}
+colony_sizes <- vapply(colony_metadata, function(x) x$colony_size, FUN.VAL = numeric(1))
+head_widths <-vapply(colony_metadata, function(x) mean(x$head_width), FUN.VAL = numeric(1))
+df <- data.frame(logsize = log10(colony_sizes), mean_head_width = head_widths)
+df <- df[names(colony_metadata)!="18-61",]
+lm(mean_head_width~logsize, data=df)
+```

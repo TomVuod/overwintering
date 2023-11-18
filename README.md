@@ -14,8 +14,7 @@ vignette("Data_workflow")
 ```
 # Render plots
 ```
-figure_5() # Fig.5 from the publication
+figure_4() # Fig.4  from the publication
+figure_5() # Fig.5
 figure_6() # Fig.6 
 ```
-
-
